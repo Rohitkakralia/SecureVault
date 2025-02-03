@@ -1,8 +1,8 @@
 import Image from "next/image";
+
 export default function Home() {
   return (
-    <>
-      <div className=" min-h-screen flex items-center justify-center px-6 text-white">
+    <div className="min-h-screen flex items-center justify-center px-6 text-white">
       <div className="max-w-6xl flex flex-col md:flex-row items-center gap-10">
         <div className="text-center md:text-left max-w-lg">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -15,11 +15,10 @@ export default function Home() {
             Save Your Documents For Free →
           </button>
         </div>
-        <div className="relative w-[500px] h-[300px] md:h-[400px]">
-          <Image src="/background.jpg" alt="Illustration" layout="fill" objectFit="contain" />
-        </div>
+        {/* <div className="relative w-[500px] h-[300px] md:h-[400px]">
+          <Image src="/background.jpg" className="h-screen w-screen" alt="Illustration" fill style={{ objectFit: 'contain' }} />
+        </div> */}
       </div>
     </div>
-    </>
   );
 }
