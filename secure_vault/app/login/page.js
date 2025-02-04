@@ -13,7 +13,8 @@ export default function Component() {
    <div className="text-red">
     
    Not signed in <br/>
-    <button onClick={() => signIn()}>Sign in</button>
+    <button onClick={() => signIn("github")} >Sign in With github</button>
+    <button onClick={() => signIn("google")} >Sign in With google</button>
    </div>
   </>
 }
