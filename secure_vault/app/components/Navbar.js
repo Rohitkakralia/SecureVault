@@ -1,9 +1,11 @@
 "use client"
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
+import {useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 
 export default function Navbar() {
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -35,10 +37,13 @@ export default function Navbar() {
           </div>
 
           {/* Buttons */}
-          <div className="hidden md:flex space-x-4 mt-2 items-center">
+          {!session && <div className="hidden md:flex space-x-4 mt-2 items-center">
           <button type="button" className="text-gray-900 h-12 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">Sign Up</button>
             <Link href="/login" className="text-white h-12 bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Log In</Link>
-          </div>
+          </div>}
+          {session && <div className="hidden md:flex space-x-4 mt-2 items-center">
+            <Link href="/login" onClick={() => { signOut() }}  className="text-white h-12 bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">Log out</Link>
+          </div>}
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
