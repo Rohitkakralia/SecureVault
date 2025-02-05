@@ -6,7 +6,7 @@ export default function Home() {
       <div className="max-w-6xl flex flex-col md:flex-row items-center gap-10">
         <div className="text-center md:text-left max-w-lg">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Secure Documents with <span className="text-[#F6E6CB]">SecureVault</span>
+            Secure Documents with <span className="text-[#F6E6CB]">SecureVault9000</span>
           </h1>
           <p className="text-lg text-gray-300 mb-6">
             Project management software that enables your teams to collaborate, plan, analyze, and manage everyday tasks.
