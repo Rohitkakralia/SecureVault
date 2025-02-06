@@ -26,14 +26,21 @@ export const authOptions = {
                 await connectDB();
                 console.log('Database connected');
 
-                const currentUser = await User.findOne({ email: email });
+                // Ensure email is defined
+                const userEmail = email || user?.email || profile?.email;
+                if (!userEmail) {
+                    console.error('No email found for user.');
+                    return false; // Prevent sign-in
+                }
+
+                const currentUser = await User.findOne({ email: userEmail });
                 console.log('Current user:', currentUser);
 
-                if (!currentUser) {
+                if (currentUser == null) {
                     console.log('Creating new user');
                     const newUser = new User({
-                        email: email,
-                        username: email.split('@')[0],
+                        email: userEmail,
+                        username: userEmail.split('@')[0], // Now safe
                         provider: account.provider,
                     });
                     await newUser.save();
@@ -43,13 +50,15 @@ export const authOptions = {
                 return true; // Allow sign-in
             } catch (error) {
                 console.error('Error during sign-in:', error);
-                return true; // Prevent sign-in on error
+                return false; // Prevent sign-in on error
             }
         }
 
         return true; // Prevent sign-in for other providers
     }
 }
+
+
 };
 
 const handler = NextAuth(authOptions)
