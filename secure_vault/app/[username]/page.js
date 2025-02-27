@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react'; // <-- Add useEffect
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import UploadImage from '../components/UploadImage';
+import FileUpload from '../components/FileUpload';
 
 const page = () => { // <-- PascalCase component name
   const { data: session } = useSession();
@@ -21,7 +21,7 @@ const page = () => { // <-- PascalCase component name
   return (
     <div className='text-white mt-96'>
       {session.user.name} 
-      <UploadImage />
+      <FileUpload/>
     </div>
   );
 };
