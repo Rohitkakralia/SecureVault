@@ -1,26 +1,25 @@
 import mongoose from 'mongoose';
 
 const ImageSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true
+  user: { 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true 
   },
-  userEmail: {
-    type: String,
-    required: true
+  hash: { 
+    type: String, 
+    required: true 
   },
-  imageUrl: {
-    type: String,
-    required: true
+  iv: { 
+    type: String 
   },
-  fileName: {
-    type: String,
-    required: true
+  fileName: { 
+    type: String 
   },
-  uploadTime: {
-    type: Date,
-    default: Date.now
-  }
+  uploadDate: { 
+    type: Date, 
+    default: Date.now 
+  },
 });
 
 export default mongoose.models.Image || mongoose.model('Image', ImageSchema);

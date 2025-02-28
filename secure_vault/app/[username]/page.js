@@ -1,29 +1,32 @@
 "use client";
-import React, { useEffect } from 'react'; // <-- Add useEffect
-import { useSession, signIn, signOut } from "next-auth/react";
+import React, { useEffect, useState } from 'react';
+import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import FileUpload from '../components/FileUpload';
 
-const page = () => { // <-- PascalCase component name
-  const { data: session } = useSession();
+const Dashboard = () => {
+  const { data: session, status } = useSession();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!session) {
+    if (status === "unauthenticated") {
       router.push("/login");
+    } else if (status === "authenticated") {
+      setIsLoading(false);
     }
-  }, [session, router]); // <-- Client-side only check
+  }, [status, router]);
 
-  if (!session) {
-    return null; // <-- Return nothing while checking
+  if (isLoading || status === "loading") {
+    return <div className="text-white mt-96">Loading...</div>;
   }
 
   return (
     <div className='text-white mt-96'>
-      {session.user.name} 
-      <FileUpload/>
+      {session.user.name}
+      <FileUpload useremail={session.user.email} />
     </div>
   );
 };
 
-export default page;
+export default Dashboard;

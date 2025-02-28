@@ -26,11 +26,11 @@ export default function RootLayout({ children }) {
         
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* <SessionWrapper> */}
-        {/* <Navbar/> */}
+        <SessionWrapper>
+        <Navbar/>
         {children}
 
-        {/* </SessionWrapper> */}
+        </SessionWrapper>
       </body>
       
     </html>

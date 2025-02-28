@@ -1,50 +1,49 @@
-
 import { NextResponse } from "next/server";
 import FormData from "form-data";
 import axios from "axios";
+import connectDB from "@/db/connectDb";
+import mongoose from "mongoose";
+import Image from "@/models/Image";
+import User from "@/models/User"; // Import your User model
 
 export async function POST(req) {
-  console.log("Request received Rohit");
+  console.log("Request received");
+  await connectDB();
+  console.log("DB connected");
   
   try {
-    // Parse the request as FormData
     const formData = await req.formData();
     const file = formData.get("file");
+    const iv = formData.get("iv");
+    const userEmail = formData.get("useremail");
 
-    console.log("File received..:", file);
-    console.log("form received..:", formData);
+    if (!file || !iv || !userEmail) {
+      return NextResponse.json({ 
+        error: "No file, IV, or userEmail provided" 
+      }, { status: 400 });
+    }
+
+    // Find the user by email to get their ObjectId
+    const user = await mongoose.model('User').findOne({ email: userEmail });
     
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    if (!user) {
+      console.error("User not found with email:", userEmail);
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     
-    console.log("File received..:", file.name);
-    
-    // Create a new FormData for Pinata
+    console.log("Found user with ID:", user._id);
+    console.log("File received:", file.name);
+    console.log("IV received:", iv);
+
     const pinataFormData = new FormData();
-
-    console.log("File received..:", pinataFormData);
-    
-    // Convert the file to a Buffer
     const buffer = Buffer.from(await file.arrayBuffer());
-    
-    // Add the file to FormData
+
     pinataFormData.append("file", buffer, file.name);
-    
-    console.log("File received..:", pinataFormData);
-    // Add metadata
-    const pinataMetadata = JSON.stringify({ name: file.name });
-    pinataFormData.append("pinataMetadata", pinataMetadata);
-    
-    console.log("File received..:", pinataMetadata);
+    pinataFormData.append("pinataMetadata", JSON.stringify({ name: file.name }));
+    pinataFormData.append("pinataOptions", JSON.stringify({ cidVersion: 1 }));
 
+    console.log("Uploading encrypted file to Pinata...");
 
-    const pinataOptions = JSON.stringify({ cidVersion: 1 });
-    pinataFormData.append("pinataOptions", pinataOptions);
-    
-    console.log("Uploading file to Pinata...");
-    
-    // Send to Pinata
     const pinataResponse = await axios.post(
       "https://api.pinata.cloud/pinning/pinFileToIPFS",
       pinataFormData,
@@ -56,8 +55,26 @@ export async function POST(req) {
         },
       }
     );
+
+    const ipfsHash = pinataResponse.data.IpfsHash;
     
-    return NextResponse.json({ hash: pinataResponse.data.IpfsHash }, { status: 200 });
+    // Create and save the image record with the user's ObjectId
+    const newImage = new Image({
+      user: user._id, // Use the MongoDB ObjectId
+      hash: ipfsHash,
+      iv: iv,
+      fileName: file.name
+    });
+    
+    console.log("Saving image record to database...");
+    await newImage.save();
+    console.log("Image record saved to database");
+
+    return NextResponse.json({
+      hash: ipfsHash,
+      iv,
+      _id: newImage._id
+    }, { status: 200 });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Failed to upload file: " + error.message }, { status: 500 });
