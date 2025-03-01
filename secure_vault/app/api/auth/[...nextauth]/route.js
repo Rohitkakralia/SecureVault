@@ -9,7 +9,7 @@ export const authOptions = {
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
+      clientSecret: process.env.GITHUB_SECRET
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -50,11 +50,11 @@ export const authOptions = {
                 return true; // Allow sign-in
             } catch (error) {
                 console.error('Error during sign-in:', error);
-                return true; // Prevent sign-in on error
+                return false; // Prevent sign-in on error
             }
         }
 
-        return true; // Prevent sign-in for other providers
+        return true; // allow sign-in for other providers
     }
 }
 
