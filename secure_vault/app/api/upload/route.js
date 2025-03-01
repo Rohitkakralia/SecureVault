@@ -4,7 +4,7 @@ import axios from "axios";
 import connectDB from "@/db/connectDb";
 import mongoose from "mongoose";
 import Image from "@/models/Image";
-import User from "@/models/User"; // Import your User model
+import User from "@/models/User";
 
 export async function POST(req) {
   console.log("Request received");
@@ -25,6 +25,7 @@ export async function POST(req) {
 
     // Find the user by email to get their ObjectId
     const user = await mongoose.model('User').findOne({ email: userEmail });
+    console.log("User found:", user);
     
     if (!user) {
       console.error("User not found with email:", userEmail);

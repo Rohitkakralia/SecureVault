@@ -1,23 +1,26 @@
-
-//for upload encrypted image to IPFS
-
 import { useState, useEffect } from "react";
+import { fetchUser } from "../actions/fetchDetails";
+import { fetchUploads } from "../actions/fetchDetails";
 
-export default function FileUpload({useremail}) {
+export default function FileUpload({ useremail }) {
   const [file, setFile] = useState(null);
   const [hash, setHash] = useState("");
   const [loading, setLoading] = useState(false);
   const [decryptedImage, setDecryptedImage] = useState(null);
   const [iv, setIv] = useState(""); // IV for current upload
-  const [uploadHistory, setUploadHistory] = useState([]); // List of previous uploads
+  const [uploadHistory, setUploadHistory] = useState([]); // List of uploads from MongoDB
   const [isModalOpen, setIsModalOpen] = useState(false); // For enlarged image view
 
-  // Load upload history from local storage on mount
+  // Function to fetch upload history from your backend (MongoDB)
+  const getData = async () => {
+    let u = await fetchUser(useremail);
+    let images = await fetchUploads(u);
+    setUploadHistory(images);
+  };
+  
+
   useEffect(() => {
-    const savedUploads = localStorage.getItem("ipfsUploads");
-    if (savedUploads) {
-      setUploadHistory(JSON.parse(savedUploads));
-    }
+    getData();
   }, []);
 
   const handleFileChange = (event) => {
@@ -33,7 +36,7 @@ export default function FileUpload({useremail}) {
       const formData = new FormData();
       formData.append("file", new Blob([encryptedData])); // Encrypted file
       formData.append("iv", iv); // IV as base64 string
-      formData.append("useremail", useremail);
+      formData.append("useremail", useremail); // Pass the user identifier
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -44,16 +47,8 @@ export default function FileUpload({useremail}) {
       if (data.hash) {
         setHash(data.hash);
         setIv(iv);
-        // Save details to local storage
-        const newUpload = {
-          hash: data.hash,
-          iv,
-          fileName: file.name + ".enc",
-          uploadDate: new Date().toISOString(),
-        };
-        const updatedHistory = [newUpload, ...uploadHistory];
-        setUploadHistory(updatedHistory);
-        localStorage.setItem("ipfsUploads", JSON.stringify(updatedHistory));
+        // After a successful upload, re-fetch the uploads from MongoDB
+        getData();
       } else {
         alert("Upload failed: Hash not found");
       }
@@ -153,7 +148,7 @@ export default function FileUpload({useremail}) {
         <div className="mt-6 p-3 border rounded bg-gray-50">
           <h3 className="text-lg font-bold mb-2">Upload History</h3>
           {uploadHistory.map((upload, index) => (
-            <div key={index} className="border p-2 rounded mb-2">
+            <div key={upload._id || index} className="border p-2 rounded mb-2">
               <p className="text-sm">
                 <strong>{upload.fileName}</strong>
               </p>
@@ -226,25 +221,21 @@ export default function FileUpload({useremail}) {
   );
 }
 
-// Encrypt the image using AES-CBC
+// Encrypt the file using AES-CBC
 async function encryptImage(file) {
   const iv = crypto.getRandomValues(new Uint8Array(16)); // 16-byte IV
   const keyBuffer = new TextEncoder().encode("0123456789abcdef0123456789abcdef"); // 32-byte key
-  const key = await crypto.subtle.importKey("raw", keyBuffer, { name: "AES-CBC" }, false, [
-    "encrypt",
-  ]);
+  const key = await crypto.subtle.importKey("raw", keyBuffer, { name: "AES-CBC" }, false, ["encrypt"]);
   const fileBuffer = await file.arrayBuffer();
   const encryptedData = await crypto.subtle.encrypt({ name: "AES-CBC", iv }, key, fileBuffer);
   return { encryptedData: new Uint8Array(encryptedData), iv: Buffer.from(iv).toString("base64") };
 }
 
-// Decrypt the image using AES-CBC
+// Decrypt the file using AES-CBC
 async function decryptImage(encryptedData, iv) {
   const ivBuffer = new Uint8Array(Buffer.from(iv, "base64"));
   const keyBuffer = new TextEncoder().encode("0123456789abcdef0123456789abcdef");
-  const key = await crypto.subtle.importKey("raw", keyBuffer, { name: "AES-CBC" }, false, [
-    "decrypt",
-  ]);
+  const key = await crypto.subtle.importKey("raw", keyBuffer, { name: "AES-CBC" }, false, ["decrypt"]);
   const decryptedData = await crypto.subtle.decrypt({ name: "AES-CBC", iv: ivBuffer }, key, encryptedData);
   return new Blob([decryptedData]);
 }
