@@ -22,7 +22,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className='text-white mt-96'>
+    <div className='text-white mt-8 text-center '>
       {session.user.name}
       <FileUpload useremail={session.user.email} />
     </div>
