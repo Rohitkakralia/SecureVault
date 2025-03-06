@@ -16,6 +16,12 @@ export async function POST(req) {
     const file = formData.get("file");
     const iv = formData.get("iv");
     const userEmail = formData.get("useremail");
+    const patientName = formData.get("patientName");
+    const patientAge = formData.get("patientAge");
+    const patientDisease = formData.get("patientDisease");
+    const patientGender = formData.get("patientGender");
+
+    console.log("Patient Info.:", patientAge, patientDisease, patientGender);
 
     if (!file || !iv || !userEmail) {
       return NextResponse.json({ 
@@ -35,6 +41,12 @@ export async function POST(req) {
     console.log("Found user with ID:", user._id);
     console.log("File received:", file.name);
     console.log("IV received:", iv);
+    console.log("user Name:", user.username);
+    console.log("Patient Name:", patientName);
+    console.log("Patient Age:", patientAge);
+    console.log("Patient Disease:", patientDisease);
+    console.log("Patient Gender:", patientGender);
+    
 
     const pinataFormData = new FormData();
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -61,13 +73,18 @@ export async function POST(req) {
     
     // Create and save the image record with the user's ObjectId
     const newImage = new Image({
-      user: user._id, // Use the MongoDB ObjectId
+      user: user._id,
       hash: ipfsHash,
       iv: iv,
-      fileName: file.name
+      userName: user.username,
+      fileName: file.name,
+      patientName: patientName || '',
+      patientAge: patientAge ? parseInt(patientAge, 10) : null, // Convert to number
+      patientDisease: patientDisease || '',
+      patientGender: patientGender || ''
     });
     
-    console.log("Saving image record to database...");
+    console.log("Saving image record to database...", newImage);
     await newImage.save();
     console.log("Image record saved to database");
 

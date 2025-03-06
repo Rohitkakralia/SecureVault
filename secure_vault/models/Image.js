@@ -6,6 +6,10 @@ const ImageSchema = new mongoose.Schema({
     ref: 'User',
     required: true 
   },
+  userName: { 
+    type: String, 
+    required: true 
+  },  
   hash: { 
     type: String, 
     required: true 
@@ -14,6 +18,18 @@ const ImageSchema = new mongoose.Schema({
     type: String 
   },
   fileName: { 
+    type: String 
+  },
+  patientName: { 
+    type: String 
+  },
+  patientAge: { 
+    type: Number 
+  },
+  patientDisease: { 
+    type: String 
+  },
+  patientGender: { 
     type: String 
   },
   uploadDate: { 
