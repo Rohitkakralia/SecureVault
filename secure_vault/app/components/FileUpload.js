@@ -27,7 +27,7 @@ export default function FileUpload({ useremail }) {
     setUploadHistory(images);
     setFilteredHistory(images); // Initialize filtered history with all images
   };
-  
+
   useEffect(() => {
     getData();
   }, []);
@@ -36,33 +36,48 @@ export default function FileUpload({ useremail }) {
   const handleSearch = (query, filter) => {
     setSearchQuery(query);
     setSearchFilter(filter);
-    
+
     if (!query.trim()) {
       setFilteredHistory(uploadHistory); // Reset to show all results
       return;
     }
 
     const lowerQuery = query.toLowerCase();
-    const filtered = uploadHistory.filter(upload => {
+    const filtered = uploadHistory.filter((upload) => {
       if (filter === "all") {
         return (
-          (upload.patientName && upload.patientName.toLowerCase().includes(lowerQuery)) ||
-          (upload.patientAge && upload.patientAge.toString().includes(lowerQuery)) ||
-          (upload.patientDisease && upload.patientDisease.toLowerCase().includes(lowerQuery)) ||
-          (upload.patientGender && upload.patientGender.toLowerCase().includes(lowerQuery))
+          (upload.patientName &&
+            upload.patientName.toLowerCase().includes(lowerQuery)) ||
+          (upload.patientAge &&
+            upload.patientAge.toString().includes(lowerQuery)) ||
+          (upload.patientDisease &&
+            upload.patientDisease.toLowerCase().includes(lowerQuery)) ||
+          (upload.patientGender &&
+            upload.patientGender.toLowerCase().includes(lowerQuery))
         );
       } else if (filter === "name") {
-        return upload.patientName && upload.patientName.toLowerCase().includes(lowerQuery);
+        return (
+          upload.patientName &&
+          upload.patientName.toLowerCase().includes(lowerQuery)
+        );
       } else if (filter === "age") {
-        return upload.patientAge && upload.patientAge.toString().includes(lowerQuery);
+        return (
+          upload.patientAge && upload.patientAge.toString().includes(lowerQuery)
+        );
       } else if (filter === "disease") {
-        return upload.patientDisease && upload.patientDisease.toLowerCase().includes(lowerQuery);
+        return (
+          upload.patientDisease &&
+          upload.patientDisease.toLowerCase().includes(lowerQuery)
+        );
       } else if (filter === "gender") {
-        return upload.patientGender && upload.patientGender.toLowerCase().includes(lowerQuery);
+        return (
+          upload.patientGender &&
+          upload.patientGender.toLowerCase().includes(lowerQuery)
+        );
       }
       return false;
     });
-    
+
     setFilteredHistory(filtered);
   };
 
@@ -99,7 +114,7 @@ export default function FileUpload({ useremail }) {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFileChange(e.dataTransfer.files[0]);
     }
@@ -114,25 +129,30 @@ export default function FileUpload({ useremail }) {
       patientAge,
       patientDisease,
       patientGender,
-      file
+      file,
     });
     setLoading(true);
     try {
       const { encryptedData, iv } = await encryptImage(file);
+      const encryptedFile = new File(
+        [encryptedData],
+        file.name, // Original filename from the input file
+        { type: file.type } // Preserve the original MIME type
+      );
+
       const formData = new FormData();
-      formData.append("file", new Blob([encryptedData])); // Encrypted file
+      formData.append("file", encryptedFile); // Encrypted file
       formData.append("iv", iv); // IV as base64 string
       formData.append("useremail", useremail || ""); // Pass the user identifier
       formData.append("patientName", patientName || "");
       formData.append("patientAge", patientAge || "");
       formData.append("patientDisease", patientDisease || "");
       formData.append("patientGender", patientGender || "");
-    
+
       console.log("formData:", formData.get("patientName"));
       console.log("formData:", formData.get("patientAge"));
       console.log("formData:", formData.get("patientDisease"));
       console.log("formData:", formData.get("patientGender"));
-      
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -173,7 +193,9 @@ export default function FileUpload({ useremail }) {
   // Decrypt an image from upload history
   const handleDecryptHistory = async (record) => {
     try {
-      const response = await fetch(`https://gateway.pinata.cloud/ipfs/${record.hash}`);
+      const response = await fetch(
+        `https://gateway.pinata.cloud/ipfs/${record.hash}`
+      );
       if (!response.ok) throw new Error("Failed to download encrypted file");
       const encryptedData = new Uint8Array(await response.arrayBuffer());
       const decryptedBlob = await decryptImage(encryptedData, record.iv);
@@ -181,6 +203,59 @@ export default function FileUpload({ useremail }) {
     } catch (error) {
       console.error("Decryption error:", error);
       alert("Failed to decrypt file from history");
+    }
+  };
+
+  // Add this function to your component
+  const handleDeleteHistory = async (upload) => {
+    if (!upload || !upload._id) {
+      console.error("Cannot delete record: Invalid upload data or missing ID");
+      return;
+    }
+
+    // Confirm deletion with the user
+    if (
+      !confirm(
+        `Are you sure you want to delete this record for patient ${upload.patientName}?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      // Show loading state
+      setLoading(true);
+      const imageId = upload._id; // Get the ID of the image to delete
+      console.log("Deleting record with ID:", imageId);
+      // Make API call to delete the record from the database
+      const response = await fetch("/api/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete record");
+      }
+
+      // Update the local state by removing the deleted record
+      setUploadHistory((prevHistory) =>
+        prevHistory.filter((record) => record._id !== upload._id)
+      );
+
+      // Also update filtered history if search is active
+      setFilteredHistory((prevFiltered) =>
+        prevFiltered.filter((record) => record._id !== upload._id)
+      );
+
+      // Show success message
+      alert("Record deleted successfully");
+    } catch (error) {
+      console.error("Error deleting record:", error);
+      alert(`Failed to delete record: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -200,301 +275,676 @@ export default function FileUpload({ useremail }) {
   };
 
   return (
-    <div className="p-4 max-w-6xl mx-auto text-center">
-      <div className="flex flex-col md:gap-6">
-        <div className="w-full">
-          <div className="border rounded-lg shadow-md p-4 h-full">
-            <h2 className="text-xl font-bold mb-4">Upload to IPFS (Encrypted)</h2>
-            
-            {/* Patient Information Inputs */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label htmlFor="patientName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Patient Name
-                </label>
-                <input
-                  type="text"
-                  id="patientName"
-                  value={patientName}
-                  onChange={(e) => setPatientName(e.target.value)}
-                  className="w-full text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter patient name"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="patientAge" className="block text-sm font-medium text-gray-700 mb-1">
-                  Patient Age
-                </label>
-                <input
-                  type="number"
-                  id="patientAge"
-                  value={patientAge}
-                  onChange={(e) => setPatientAge(e.target.value)}
-                  min="0"
-                  max="150"
-                  className="w-full text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter patient age"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="patientDisease" className="block text-sm font-medium text-gray-700 mb-1">
-                  Patient Disease
-                </label>
-                <input
-                  type="text"
-                  id="patientDisease"
-                  value={patientDisease}
-                  onChange={(e) => setPatientDisease(e.target.value)}
-                  className="w-full text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter patient disease"
-                />
-              </div>
-              <div>
-                <label htmlFor="patientGender" className="block text-sm font-medium text-gray-700 mb-1">
-                  Patient Gender
-                </label>
-                <input
-                  type="text"
-                  id="patientGender"
-                  value={patientGender}
-                  onChange={(e) => setGenderDisease(e.target.value)}
-                  className="w-full text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter patient Gender"
-                />
-              </div>
-            </div>
-            
-            {/* Drag & Drop area */}
-            <div 
-              className={`border-2 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-dashed border-gray-300'} 
-                        rounded-lg p-6 text-center h-64 flex flex-col items-center justify-center cursor-pointer
-                        transition-colors duration-200 mb-4`}
-              onClick={() => fileInputRef.current.click()}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleInputChange}
-                className="hidden"
-              />
-              
-              <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-              </svg>
-              
-              <p className="text-md text-gray-600">Drag & drop your file here or <span className="text-blue-500 font-medium">browse</span></p>
-              
-              {file && (
-                <p className="mt-2 text-sm bg-gray-100 p-1 rounded w-full truncate">
-                  Selected: {file.name}
-                </p>
-              )}
-            </div>
-            
-            <button
-              onClick={handleUpload}
-              className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400 w-full"
-              disabled={loading || !file || !patientName || !patientAge || !patientDisease}
-            >
-              {loading ? "Uploading..." : "Upload"}
-            </button>
+    <div className="bg-gray-50 min-h-screen py-6">
+      <div className="max-w-6xl mx-auto px-4">
+        <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">
+          Medical Record Management
+        </h1>
 
-            {hash && (
-              <div className="mt-4 p-3 border rounded bg-gray-100 relative">
-                <div className="mb-3">
-                  <p className="font-bold">Patient Information:</p>
-                  <p>Name: {patientName}</p>
-                  <p>Age: {patientAge}</p>
-                  <p>Disease: {patientDisease}</p>
-                </div>
-                <p>
-                  <strong>Encrypted File Hash:</strong>
-                </p>
-                <p className="mb-2 break-all">
-                  <strong>IPFS:</strong> {hash}
-                </p>
-                <p>
-                  <a
-                    href={`https://gateway.pinata.cloud/ipfs/${hash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    View on IPFS
-                  </a>
-                </p>
-                <button
-                  onClick={handleDecrypt}
-                  className="bg-green-500 text-white px-4 py-2 mt-3 rounded w-full"
+        <div className="grid grid-cols-1 lg:grid-row-2 gap-6">
+          {/* Upload Section */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-blue-600 px-6 py-4">
+              <h2 className="text-xl font-semibold text-white flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  Decrypt and View
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-        
-        <div className="w-full text-black">
-          <div className="border rounded-lg shadow-md p-4 h-full">
-            <h2 className="text-xl font-bold mb-4">Upload History</h2>
-            
-            {/* Search Bar */}
-            <div className="mb-4 bg-gray-50 p-3 rounded-lg">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-grow">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  ></path>
+                </svg>
+                Upload Medical Record
+              </h2>
+            </div>
+
+            <div className="p-6">
+              {/* Patient Information Form */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label
+                    htmlFor="patientName"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Patient Name
+                  </label>
                   <input
                     type="text"
-                    className="w-full p-2 pl-10 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Search patient records..."
-                    value={searchQuery}
-                    onChange={(e) => handleSearch(e.target.value, searchFilter)}
+                    id="patientName"
+                    value={patientName}
+                    onChange={(e) => setPatientName(e.target.value)}
+                    className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter patient name"
                   />
-                  <svg 
-                    className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor"
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="patientAge"
+                    className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    Patient Age
+                  </label>
+                  <input
+                    type="number"
+                    id="patientAge"
+                    value={patientAge}
+                    onChange={(e) => setPatientAge(e.target.value)}
+                    min="0"
+                    max="150"
+                    className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter patient age"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="patientDisease"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Patient Disease
+                  </label>
+                  <input
+                    type="text"
+                    id="patientDisease"
+                    value={patientDisease}
+                    onChange={(e) => setPatientDisease(e.target.value)}
+                    className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter patient disease"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="patientGender"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Patient Gender
+                  </label>
+                  <select
+                    id="patientGender"
+                    value={patientGender}
+                    onChange={(e) => setGenderDisease(e.target.value)}
+                    className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="" disabled >
+                      Select gender
+                    </option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* File Upload Area */}
+              <div
+                className={`border-2 ${
+                  isDragging
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-dashed border-gray-300"
+                } 
+                          rounded-lg p-6 text-center h-48 flex flex-col items-center justify-center cursor-pointer
+                          transition-all duration-300 hover:bg-gray-50 mb-6`}
+                onClick={() => fileInputRef.current.click()}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleInputChange}
+                  className="hidden"
+                />
+
+                <div className="bg-blue-100 p-3 rounded-full mb-3">
+                  <svg
+                    className="w-8 h-8 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    ></path>
                   </svg>
                 </div>
-                
-                <select
-                  className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={searchFilter}
-                  onChange={(e) => handleSearch(searchQuery, e.target.value)}
-                >
-                  <option value="all">All Fields</option>
-                  <option value="name">Patient Name</option>
-                  <option value="age">Age</option>
-                  <option value="disease">Disease</option>
-                  <option value="gender">Gender</option>
-                </select>
+
+                <p className="text-md text-gray-600 mb-1">
+                  Drag & drop your medical record here
+                </p>
+                <p className="text-sm text-gray-500">
+                  or{" "}
+                  <span className="text-blue-600 font-medium">
+                    browse files
+                  </span>
+                </p>
+
+                {file && (
+                  <div className="mt-3 bg-blue-50 p-2 rounded-lg max-w-full">
+                    <p className="text-sm text-blue-700 font-medium truncate">
+                      {file.name}
+                    </p>
+                  </div>
+                )}
               </div>
-            </div>
-            
-            {filteredHistory.length === 0 ? (
-              <div className="border rounded-lg p-8 text-center h-64 flex flex-col items-center justify-center bg-gray-50">
-                {uploadHistory.length === 0 ? (
+
+              <button
+                onClick={handleUpload}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg disabled:bg-gray-400 w-full transition-colors duration-200 flex items-center justify-center"
+                disabled={
+                  loading ||
+                  !file ||
+                  !patientName ||
+                  !patientAge ||
+                  !patientDisease
+                }
+              >
+                {loading ? (
                   <>
-                    <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
-                    <p className="text-gray-500">No uploads yet</p>
+                    Uploading...
                   </>
                 ) : (
                   <>
-                    <svg className="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    <p className="text-gray-500">No matching results found</p>
-                    <button 
-                      onClick={() => handleSearch("", "all")} 
-                      className="mt-2 text-blue-500 hover:underline"
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                      Clear search
-                    </button>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"
+                      ></path>
+                    </svg>
+                    Upload & Encrypt
                   </>
                 )}
-              </div>
-            ) : (
-              <div className="overflow-y-auto max-h-96">
-                {filteredHistory.map((upload, index) => (
-                  <div key={upload._id || index} className="border p-3 rounded mb-3 bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <div className="mb-2">
-                      <p className="text-sm font-medium text-black">
-                        <strong>File:</strong> {upload.fileName}
+              </button>
+
+              {/* Upload Success Section */}
+              {hash && (
+                <div className="mt-6 p-4 border rounded-xl bg-blue-50 border-blue-200 text-black">
+                  <div className="flex items-center mb-3 text-blue-600">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                    <span className="font-semibold">Upload Successful</span>
+                  </div>
+
+                  <div className="bg-white p-3 rounded-lg mb-3 shadow-sm">
+                    <p className="font-semibold mb-2">Patient Information:</p>
+                    <div className="grid grid-cols-2 gap-1 text-sm">
+                      <p>
+                        <strong>Name:</strong> {patientName}
                       </p>
-                      <p className="text-xs text-gray-600">
-                        {new Date(upload.uploadDate).toLocaleString()}
+                      <p>
+                        <strong>Age:</strong> {patientAge}
                       </p>
-                    </div>
-                    
-                    <div className="bg-white p-2 rounded mb-2 text-black">
-                      <h3 className="text-sm font-bold mb-1">Patient Information</h3>
-                      <div className="grid grid-cols-2 gap-1 text-xs">
-                        <p><strong>Name:</strong> {upload.patientName || 'N/A'}</p>
-                        <p><strong>Age:</strong> {upload.patientAge || 'N/A'}</p>
-                        <p><strong>Gender:</strong> {upload.patientGender || 'N/A'}</p>
-                        <p><strong>Disease:</strong> {upload.patientDisease || 'N/A'}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between text-black items-center mt-2">
-                      <a
-                        href={`https://gateway.pinata.cloud/ipfs/${upload.hash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 underline text-xs"
-                      >
-                        View on IPFS
-                      </a>
-                      <button
-                        onClick={() => handleDecryptHistory(upload)}
-                        className="bg-green-500 text-white px-2 py-1 rounded text-xs"
-                      >
-                        Decrypt & View
-                      </button>
+                      <p>
+                        <strong>Disease:</strong> {patientDisease}
+                      </p>
+                      <p>
+                        <strong>Gender:</strong> {patientGender || "N/A"}
+                      </p>
                     </div>
                   </div>
-                ))}
+
+                  <div className="mb-3">
+                    <p className="font-semibold text-sm mb-1">
+                      Encrypted File Hash:
+                    </p>
+                    <p className="text-xs font-mono bg-gray-100 p-2 rounded-lg break-all border border-gray-200">
+                      {hash}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <a
+                      href={`https://gateway.pinata.cloud/ipfs/${hash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
+                    >
+                      <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        ></path>
+                      </svg>
+                      View on IPFS
+                    </a>
+
+                    <button
+                      onClick={handleDecrypt}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-colors duration-200"
+                    >
+                      <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                        ></path>
+                      </svg>
+                      Decrypt & View
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* History Section */}
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-indigo-600 px-6 py-4">
+              <h2 className="text-xl font-semibold text-white flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                Upload History
+              </h2>
+            </div>
+
+            <div className="p-6">
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-grow">
+                    <input
+                      type="text"
+                      className="w-full text-black p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      placeholder="Search patient records..."
+                      value={searchQuery}
+                      onChange={(e) =>
+                        handleSearch(e.target.value, searchFilter)
+                      }
+                    />
+                    <svg
+                      className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+
+                  <select
+                    className="text-black p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    value={searchFilter}
+                    onChange={(e) => handleSearch(searchQuery, e.target.value)}
+                  >
+                    <option value="all">All Fields</option>
+                    <option value="name">Patient Name</option>
+                    <option value="age">Age</option>
+                    <option value="disease">Disease</option>
+                    <option value="gender">Gender</option>
+                  </select>
+                </div>
               </div>
-            )}
+
+              {/* Records List */}
+              {filteredHistory.length === 0 ? (
+                <div className="rounded-xl p-8 text-center h-64 flex flex-col items-center justify-center bg-gray-50">
+                  {uploadHistory.length === 0 ? (
+                    <>
+                      <div className="bg-gray-100 p-4 rounded-full mb-3">
+                        <svg
+                          className="w-10 h-10 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                          ></path>
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium">
+                        No uploads yet
+                      </p>
+                      <p className="text-gray-400 text-sm mt-1">
+                        Patient records will appear here after upload
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="bg-gray-100 p-4 rounded-full mb-3">
+                        <svg
+                          className="w-10 h-10 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M6 18L18 6M6 6l12 12"
+                          ></path>
+                        </svg>
+                      </div>
+                      <p className="text-gray-600 font-medium">
+                        No matching results found
+                      </p>
+                      <button
+                        onClick={() => handleSearch("", "all")}
+                        className="mt-3 text-indigo-600 hover:text-indigo-800 hover:underline flex items-center"
+                      >
+                        <svg
+                          className="w-4 h-4 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          ></path>
+                        </svg>
+                        Clear search
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="overflow-y-auto max-h-96 pr-1">
+                  {filteredHistory.map((upload, index) => (
+                    <div
+                      key={upload._id || index}
+                      className="border border-gray-200 rounded-xl mb-3 overflow-hidden"
+                    >
+                      <div className="bg-gray-50 p-3 border-b border-gray-200">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-700">
+                            {upload.fileName}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date(upload.uploadDate).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-3">
+                        <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+                          <div className="bg-gray-50 p-2 rounded-lg">
+                            <span className="text-xs text-gray-500">
+                              Patient Name
+                            </span>
+                            <p className="font-medium text-black">
+                              {upload.patientName || "N/A"}
+                            </p>
+                          </div>
+                          <div className="bg-gray-50 p-2 rounded-lg">
+                            <span className="text-xs text-gray-500">Age</span>
+                            <p className="font-medium text-black">
+                              {upload.patientAge || "N/A"}
+                            </p>
+                          </div>
+                          <div className="bg-gray-50 p-2 rounded-lg">
+                            <span className="text-xs text-gray-500">
+                              Disease
+                            </span>
+                            <p className="font-medium text-black">
+                              {upload.patientDisease || "N/A"}
+                            </p>
+                          </div>
+                          <div className="bg-gray-50 p-2 rounded-lg">
+                            <span className="text-xs text-gray-500">
+                              Gender
+                            </span>
+                            <p className="font-medium text-black">
+                              {upload.patientGender || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center mt-2">
+                          <a
+                            href={`https://gateway.pinata.cloud/ipfs/${upload.hash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center"
+                          >
+                            <svg
+                              className="w-4 h-4 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              ></path>
+                            </svg>
+                            View on IPFS
+                          </a>
+                          <button
+                            onClick={() => handleDecryptHistory(upload)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm font-medium flex items-center transition-colors duration-200"
+                          >
+                            <svg
+                              className="w-4 h-4 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                              ></path>
+                            </svg>
+                            Decrypt
+                          </button>
+                          <button
+                            onClick={() => handleDeleteHistory(upload)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-medium flex items-center transition-colors duration-200"
+                          >
+                            <svg
+                              className="w-4 h-4 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6h16zM10 11v6M14 11v6"
+                              />
+                            </svg>
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Decrypted Image Section */}
+        {decryptedImage && (
+          <div className="mt-6 bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-green-600 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                Decrypted Medical Record
+              </h2>
+              <button
+                onClick={handleHideImage}
+                className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors duration-200"
+                title="Hide Image"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 flex justify-center">
+              <img
+                src={decryptedImage}
+                alt="Decrypted Medical Record"
+                className="max-h-96 rounded-lg shadow-md cursor-pointer transition-all duration-300 hover:scale-105"
+                onClick={handleImageClick}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Modal for enlarged image */}
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 p-4">
+            <div className="relative max-w-4xl w-full">
+              <button
+                onClick={handleCloseModal}
+                className="absolute -top-12 right-0 bg-white text-black rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors duration-200"
+                title="Close Enlarged View"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
+              <img
+                src={decryptedImage}
+                alt="Enlarged Medical Record"
+                className="max-w-full max-h-[85vh] rounded-lg shadow-2xl mx-auto"
+              />
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* New section - Decrypted image display at the bottom */}
-      {decryptedImage && (
-        <div className="mt-6 p-4 border rounded-lg shadow-md bg-white relative">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-xl font-bold">Decrypted Image</h2>
-            <button
-              onClick={handleHideImage}
-              className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-              title="Hide Image"
-            >
-              &times;
-            </button>
-          </div>
-          
-          <div className="flex justify-center">
-            <img
-              src={decryptedImage}
-              alt="Decrypted"
-              className="max-h-96 rounded cursor-pointer transition-transform duration-200 hover:scale-105"
-              onClick={handleImageClick}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Modal for enlarged image view */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
-          <div className="relative max-w-3xl max-h-full">
-            <button
-              onClick={handleCloseModal}
-              className="absolute top-0 right-0 m-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
-              title="Close Enlarged View"
-            >
-              &times;
-            </button>
-            <img
-              src={decryptedImage}
-              alt="Enlarged Decrypted"
-              className="max-w-full max-h-full rounded"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -502,18 +952,45 @@ export default function FileUpload({ useremail }) {
 // Encrypt the file using AES-CBC
 async function encryptImage(file) {
   const iv = crypto.getRandomValues(new Uint8Array(16)); // 16-byte IV
-  const keyBuffer = new TextEncoder().encode("0123456789abcdef0123456789abcdef"); // 32-byte key
-  const key = await crypto.subtle.importKey("raw", keyBuffer, { name: "AES-CBC" }, false, ["encrypt"]);
+  const keyBuffer = new TextEncoder().encode(
+    "0123456789abcdef0123456789abcdef"
+  ); // 32-byte key
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyBuffer,
+    { name: "AES-CBC" },
+    false,
+    ["encrypt"]
+  );
   const fileBuffer = await file.arrayBuffer();
-  const encryptedData = await crypto.subtle.encrypt({ name: "AES-CBC", iv }, key, fileBuffer);
-  return { encryptedData: new Uint8Array(encryptedData), iv: Buffer.from(iv).toString("base64") };
+  const encryptedData = await crypto.subtle.encrypt(
+    { name: "AES-CBC", iv },
+    key,
+    fileBuffer
+  );
+  return {
+    encryptedData: new Uint8Array(encryptedData),
+    iv: Buffer.from(iv).toString("base64"),
+  };
 }
 
 // Decrypt the file using AES-CBC
 async function decryptImage(encryptedData, iv) {
   const ivBuffer = new Uint8Array(Buffer.from(iv, "base64"));
-  const keyBuffer = new TextEncoder().encode("0123456789abcdef0123456789abcdef");
-  const key = await crypto.subtle.importKey("raw", keyBuffer, { name: "AES-CBC" }, false, ["decrypt"]);
-  const decryptedData = await crypto.subtle.decrypt({ name: "AES-CBC", iv: ivBuffer }, key, encryptedData);
+  const keyBuffer = new TextEncoder().encode(
+    "0123456789abcdef0123456789abcdef"
+  );
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyBuffer,
+    { name: "AES-CBC" },
+    false,
+    ["decrypt"]
+  );
+  const decryptedData = await crypto.subtle.decrypt(
+    { name: "AES-CBC", iv: ivBuffer },
+    key,
+    encryptedData
+  );
   return new Blob([decryptedData]);
 }
