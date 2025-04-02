@@ -131,7 +131,7 @@ export default function ContactUs() {
                 </div>
                 <div className="ml-4">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">Email</h3>
-                  <p className="mt-1 text-gray-600 dark:text-gray-400">support@securevault.example</p>
+                  <Link href="mailto:rohitkakralia94@gmail.com" className="mt-1 text-gray-600 dark:text-gray-400">rohitkakralia94@gmail.com</Link>
                 </div>
               </div>
               
@@ -338,13 +338,13 @@ export default function ContactUs() {
                 <Phone className="h-5 w-5 mr-2" />
                 Call Support
               </a>
-              <Link 
+              {/* <Link 
                 href="/knowledge-base" 
                 className="inline-flex items-center justify-center px-5 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-blue-700"
               >
                 <MessageSquare className="h-5 w-5 mr-2" />
                 Knowledge Base
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>

@@ -85,7 +85,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <ul className="space-y-2 text-gray-300">
-              <Link href="rohitkakralia94@gmail.com"><li>Email: rohitkakralia94@gmail.com</li></Link>
+              <Link href="mailto:rohitkakralia94@gmail.com"><li>Email: rohitkakralia94@gmail.com</li></Link>
               <li>Phone: +1 (555) 123-4567</li>
             </ul>
           </div>

@@ -2,8 +2,60 @@
 import { Shield, Users, Award, Briefcase, Zap, Globe, CheckCircle, ThumbsUp, Clock } from "lucide-react";
 import Image from 'next/image';
 import Link from "next/link";
+import { useState } from "react";
 
 export default function AboutUs() {
+
+   const [selectedImage, setSelectedImage] = useState(null);
+    
+    const teamMembers = [
+      {
+        "name": "Saksham Sharma",
+        "title": "Team Lead & Co-Founder",
+        "image": "/background.jpg",
+        "bio": "Saksham is passionate about technology and innovation, leading the team with a vision to create impactful solutions.",
+        "background": "Third-year Computer Science student with experience in web development and software engineering.",
+        "social": {
+          "github": "https://github.com/saksham",
+          "linkedin": "https://linkedin.com/in/saksham",
+          "instagram": "https://instagram.com/saksham"
+        }
+      },
+      {
+        "name": "Rohit Kakralia",
+        "title": "Technical Lead & Co-Founder",
+        "image": "/background.jpg",
+        "bio": "Rohit specializes in backend development and security, contributing to multiple open-source projects.",
+        "background": "Computer Science student with expertise in problem solving and full-stack development.",
+        "social": {
+          "github": "https://github.com/rohit",
+          "linkedin": "https://linkedin.com/in/rohit",
+          "instagram": "https://instagram.com/rohit"
+        }
+      },
+      {
+        "name": "Sahilpreet Singh",
+        "title": "Operations Head",
+        "image": "/background.jpg",
+        "bio": "Sahilpreet ensures smooth project execution, focusing on teamwork and efficiency.",
+        "background": "Engineering student with experience in programming, managing tech projects and startups.",
+        "social": {
+          "github": "https://github.com/sahilpreet",
+          "linkedin": "https://linkedin.com/in/sahilpreet",
+          "instagram": "https://instagram.com/sahilpreet"
+        }
+      }
+    ];
+    
+    const openImageModal = (member) => {
+      setSelectedImage(member);
+    };
+    
+    const closeImageModal = () => {
+      setSelectedImage(null);
+    };
+    
+
   return (
     <div className="bg-white dark:bg-slate-900">
       {/* Hero Section - More modern with angled divider */}
@@ -25,7 +77,7 @@ export default function AboutUs() {
       </div>
 
       {/* Quick Stats Banner */}
-      <div className="bg-gray-50 dark:bg-slate-800 py-8 border-b border-gray-200 dark:border-slate-700">
+      {/* <div className="bg-gray-50 dark:bg-slate-800 py-8 border-b border-gray-200 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="p-4">
@@ -46,10 +98,10 @@ export default function AboutUs() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Our Story Section - Card-based layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-7xl mt-20 mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-1/2 order-2 md:order-1">
             <div className="relative">
@@ -75,26 +127,25 @@ export default function AboutUs() {
             
             <div className="space-y-4 text-gray-600 dark:text-gray-300">
               <p>
-                Secure Vault was founded in 2019 by a team of cybersecurity experts who saw a critical gap in the market: the need for truly secure, private, and user-friendly data storage solutions that put users in control of their data.
+              SecureVault was founded in 2022 by a team of Computer Science and Engineering students who saw a critical gap in the healthcare market: the need for truly secure, private, and user-friendly patient data storage solutions that put healthcare providers in control of their sensitive information.              
               </p>
               <p>
-                After years of working in the cybersecurity industry, our founders were frustrated by the false choice users faced between convenience and security. Too many solutions compromised on privacy, had confusing interfaces, or stored encryption keys on their servers – creating potential vulnerabilities.
+              During our university software projects, we discovered healthcare professionals were constantly choosing between usability and security. Existing solutions offered either weak protection with simple interfaces or strong security with complex workflows. Most systems used poor encryption, confusing designs, or centralized key storage—all risking patient data. These flaws inspired us to create something better.
               </p>
               <p>
-                We built Secure Vault on a simple principle: your data should remain your data. Our zero-knowledge architecture ensures that only you can access your information, while our intuitive interface makes security accessible to everyone, not just technical experts.
-              </p>
+              We built SecureVault on a simple principle: patient data should remain protected and accessible only to authorized personnel. Our zero-knowledge architecture ensures that only authenticated healthcare providers can access patient information, while our intuitive interface makes security accessible to medical staff of all technical backgrounds, allowing them to focus on what matters most – patient care.         </p>
             </div>
             
             <div className="mt-8 flex items-center text-blue-600 dark:text-blue-400">
               <Clock className="w-5 h-5 mr-2" />
-              <span>Protecting data since 2019</span>
+              <span>Protecting data since 2025</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Timeline Section - New addition */}
-      <div className="bg-gray-50 dark:bg-slate-800 py-16">
+      {/* <div className="bg-gray-50 dark:bg-slate-800 py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -105,12 +156,12 @@ export default function AboutUs() {
             </p>
           </div>
           
-          <div className="relative">
+          <div className="relative"> */}
             {/* Vertical line */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-blue-200 dark:bg-blue-700"></div>
+            {/* <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-blue-200 dark:bg-blue-700"></div> */}
             
             {/* Timeline items */}
-            <div className="space-y-12">
+            {/* <div className="space-y-12">
               <div className="flex flex-col md:flex-row items-center">
                 <div className="md:w-1/2 md:pr-12 md:text-right mb-4 md:mb-0">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white">2019</h3>
@@ -165,7 +216,7 @@ export default function AboutUs() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Our Values - Cards with hover effects */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -227,99 +278,135 @@ export default function AboutUs() {
       </div>
 
       {/* Our Team - Improved cards with social links */}
-      <div className="bg-gray-50 dark:bg-slate-800 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Meet Our Leadership
-            </h2>
-            <div className="h-1 w-20 bg-blue-500 mx-auto mb-6"></div>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              The experts behind Secure Vault
-            </p>
-          </div>
+       <div className="bg-gray-50 dark:bg-slate-800 min-h-screen py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            Meet Our Leadership
+          </h2>
+          <div className="h-1 w-20 bg-blue-500 mx-auto mb-6"></div>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            The experts behind Secure Vault
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Team Member 1 */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg overflow-hidden shadow-sm group">
-              <div className="aspect-w-1 aspect-h-1 relative">
-                <Image 
-                  src="/api/placeholder/400/400" 
-                  alt="Emily Chen, CEO" 
-                  width={400} 
-                  height={400} 
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {teamMembers.map((member, index) => (
+            <div key={index} className="bg-white dark:bg-slate-900 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 group">
+              <div 
+                className="aspect-w-1 aspect-h-1 relative cursor-pointer" 
+                onClick={() => openImageModal(member)}
+              >
+                <img 
+                  src={member.image} 
+                  alt={`${member.name}, ${member.title}`} 
+                  className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                  <div className="p-4 text-white">
-                    <p className="font-medium">Former security lead at CloudTech with 15+ years in cybersecurity.</p>
+                  <div className="p-4 text-white flex justify-between w-full items-end">
+                    <p className="font-medium">{member.background}</p>
+                    <div className="bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 p-2 rounded-full">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
               <div className="p-6">
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white">Emily Chen</h3>
-                <p className="text-blue-600 dark:text-blue-400 mb-2">CEO & Co-Founder</p>
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white">{member.name}</h3>
+                <p className="text-blue-600 dark:text-blue-400 mb-2">{member.title}</p>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Emily holds patents in encryption technology and is passionate about making security accessible to everyone.
+                  {member.bio}
                 </p>
               </div>
             </div>
-
-            {/* Team Member 2 */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg overflow-hidden shadow-sm group">
-              <div className="aspect-w-1 aspect-h-1 relative">
-                <Image 
-                  src="/api/placeholder/400/400" 
-                  alt="Marcus Johnson, CTO" 
-                  width={400} 
-                  height={400} 
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                  <div className="p-4 text-white">
-                    <p className="font-medium">Cryptography expert with a PhD from MIT.</p>
-                  </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Image Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={closeImageModal}>
+          <div className="relative max-w-4xl w-full" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-slate-900 rounded-lg overflow-hidden shadow-xl">
+              <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{selectedImage.name}</h3>
+                  <p className="text-blue-600 dark:text-blue-400">{selectedImage.title}</p>
                 </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white">Marcus Johnson</h3>
-                <p className="text-blue-600 dark:text-blue-400 mb-2">CTO & Co-Founder</p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Previously led security architecture at DataGuard and contributed to multiple open-source security projects.
-                </p>
-              </div>
-            </div>
-
-            {/* Team Member 3 */}
-            <div className="bg-white dark:bg-slate-900 rounded-lg overflow-hidden shadow-sm group">
-              <div className="aspect-w-1 aspect-h-1 relative">
-                <Image 
-                  src="/api/placeholder/400/400" 
-                  alt="Sarah Park, COO" 
-                  width={400} 
-                  height={400} 
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                  <div className="p-4 text-white">
-                    <p className="font-medium">Operations expert who scaled three previous tech startups.</p>
-                  </div>
+                {/* Social Media Icons */}
+                <div className="flex space-x-3 mr-8">
+                  <a 
+                    href={selectedImage.social.github} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                  </a>
+                  <a 
+                    href={selectedImage.social.linkedin} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                    </svg>
+                  </a>
+                  <a 
+                    href={selectedImage.social.instagram} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/>
+                    </svg>
+                  </a>
                 </div>
+                {/* <button 
+                  onClick={closeImageModal}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button> */}
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white">Sarah Park</h3>
-                <p className="text-blue-600 dark:text-blue-400 mb-2">COO</p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Sarah brings 12 years of leadership experience in high-growth technology companies.
-                </p>
+              <div className="p-4">
+                <img 
+                  src={selectedImage.image} 
+                  alt={`${selectedImage.name}, ${selectedImage.title}`} 
+                  className="w-full h-auto max-h-96 object-contain mx-auto"
+                />
+              </div>
+              <div className="p-6 border-t border-gray-200 dark:border-gray-700">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Background</h4>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">{selectedImage.background}</p>
+                
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Bio</h4>
+                <p className="text-gray-600 dark:text-gray-400">{selectedImage.bio}</p>
+              </div>
+              <div className="bg-gray-50 dark:bg-slate-800 px-6 py-4 flex justify-end">
+                <button
+                  onClick={closeImageModal}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
+    </div>
 
       {/* Achievements - Horizontal layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Our Achievements
@@ -373,10 +460,10 @@ export default function AboutUs() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* CTA Section - Improved with wave background */}
-      <div className="relative bg-blue-600 dark:bg-blue-800 overflow-hidden">
+      <div className="relative mt-12 bg-blue-600 dark:bg-blue-800 overflow-hidden">
         {/* Wave Pattern */}
         <div className="absolute top-0 left-0 right-0 h-8 opacity-10">
           <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full">
