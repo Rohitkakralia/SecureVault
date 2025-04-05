@@ -1,17 +1,19 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import { useSession, signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import FileUpload from '../components/FileUpload';
+import { useParams, useRouter } from "next/navigation"; // ✅ Import useRouter
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import FileUpload from "../components/FileUpload";
 
-const Dashboard = () => {
+const UserDashboard = () => {
+  const params = useParams();  // ✅ Fetch params dynamically
+  const router = useRouter();  // ✅ Initialize router
+  const username = params?.username;  // ✅ Extract username safely
   const { data: session, status } = useSession();
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login");  // ✅ Redirect if not authenticated
     } else if (status === "authenticated") {
       setIsLoading(false);
     }
@@ -22,10 +24,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className='text-white text-center '>
-      <FileUpload useremail={session.user.email} />
+    <div className="text-white text-center">
+      <h1>Welcome, {username}!</h1>
+      <FileUpload useremail={session?.user?.email} />
+      
     </div>
   );
 };
 
-export default Dashboard;
+export default UserDashboard;

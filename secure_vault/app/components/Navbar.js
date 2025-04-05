@@ -16,14 +16,25 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo and site name */}
-          <div className="flex items-center">
+          {!session && (
+            <div className="flex items-center">
             <Link href="/" className="flex items-center">
             <Shield className="h-8 w-8 text-blue-500" />
 
               <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">Secure Vault</span>
             </Link>
           </div>
+          )}
+          {session && (
+            <div className="flex items-center">
+            <Link href={session.user.name} className="flex items-center">
+            <Shield className="h-8 w-8 text-blue-500" />
 
+              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">Secure Vault</span>
+            </Link>
+          </div>
+
+          )}
           {/* Desktop navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
             {session && (
@@ -42,6 +53,15 @@ export default function Navbar() {
             >
                   <Share2 className="h-4 w-4 mr-1" /> 
               <span>Shared To</span>
+            </Link>
+            )}
+            {!session && (
+              <Link 
+              href="/" 
+              className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+            >
+              <LayoutDashboard className="h-4 w-4 mr-1" />
+              <span>Home</span>
             </Link>
             )}
           <Link 
@@ -204,8 +224,19 @@ export default function Navbar() {
               <span>Shared To</span>
             </Link>
           )}
+          {!session && (
+            <Link 
+            href="/" 
+            className="flex items-center py-2 px-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <LayoutDashboard className="h-4 w-4 mr-1" />
+            <span>Home</span>
+          </Link>
+          )}
+          
           <Link 
-            href="/catalog" 
+            href="/about" 
             className="flex items-center py-2 px-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
             onClick={() => setIsMenuOpen(false)}
           >
@@ -213,7 +244,7 @@ export default function Navbar() {
             <span>About Us</span>
           </Link>
           <Link 
-            href="/delivery" 
+            href="/how-it-work" 
             className="flex items-center py-2 px-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
             onClick={() => setIsMenuOpen(false)}
           >
@@ -221,7 +252,7 @@ export default function Navbar() {
             <span>How to use</span>
           </Link>
           <Link 
-            href="/payment" 
+            href="/creators" 
             className="flex items-center py-2 px-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
             onClick={() => setIsMenuOpen(false)}
           >

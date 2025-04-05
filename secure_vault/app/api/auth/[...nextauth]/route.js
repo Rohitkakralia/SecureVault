@@ -29,7 +29,7 @@ export const authOptions = {
                 // Ensure email is defined
                 const userEmail = email || user?.email || profile?.email;
                 if (!userEmail) {
-                    console.error('No email found for user.');
+                    console.error('No email found for user.'); 
                     return false; // Prevent sign-in
                 }
 

@@ -107,7 +107,7 @@ export default function AboutUs() {
             <div className="relative">
               <div className="absolute -top-4 -left-4 w-24 h-24 bg-blue-100 dark:bg-blue-900 rounded-lg z-0"></div>
               <Image 
-                src="/api/placeholder/500/400" 
+                src="/shield.avif" 
                 alt="Secure Vault team" 
                 width={500} 
                 height={400} 

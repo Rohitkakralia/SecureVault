@@ -17,8 +17,6 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-900 to-slate-800 px-4">
-      <div className="absolute top-0 left-0 w-full h-64 bg-blue-500 opacity-10"></div>
-      
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden w-full max-w-md z-10 p-1">
         <div className="relative">
           {/* Background pattern */}
