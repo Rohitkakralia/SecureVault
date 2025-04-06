@@ -119,11 +119,11 @@ export default function Navbar() {
               <button 
                 id="dropdownAvatarNameButton" 
                 onClick={() => setShowDropdown(!showDropdown)} 
-                onBlur={() => {
-                  setTimeout(() => {
-                    setShowDropdown(false)
-                  }, 100);
-                }}
+                // onBlur={() => {
+                //   setTimeout(() => {
+                //     setShowDropdown(false)
+                //   }, 100);
+                // }}
                 className="flex items-center rounded-full text-sm font-medium text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400 focus:outline-none"
               >
                 <Image
@@ -133,7 +133,7 @@ export default function Navbar() {
                   width={32}
                   height={32}
                 />
-                <span className="ml-2">{session.user.name}</span>
+                {/* <span className="ml-2">{session.user.name}</span> */}
               </button>
               <div className="py-2">
                   <Link 
@@ -148,11 +148,20 @@ export default function Navbar() {
               {/* Dropdown menu */}
               <div 
                 id="dropdownAvatarName" 
-                className={`absolute right-0 z-10 ${showDropdown ? "" : "hidden"} mt-2 top-full bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600`}
+                className={`absolute right-0 z-10 ${showDropdown ? "" : "hidden"} mt-2 top-full bg-white divide-y divide-gray-100 rounded-lg shadow w-64 dark:bg-gray-700 dark:divide-gray-600`}
               >
+                <div className="flex items-center px-4 py-3">
+                <Image
+                  className="w-8 h-8 rounded-full"
+                  src="/background.jpg"
+                  alt="user photo"
+                  width={34}
+                  height={34}
+                />
                 <div className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                   <div className="font-medium">{session.user.name}</div>
                   <div className="truncate">{session.user.email}</div>
+                </div>
                 </div>
                 <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                   <li>

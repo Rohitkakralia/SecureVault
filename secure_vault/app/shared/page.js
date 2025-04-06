@@ -1,6 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react'
 import { useSession } from "next-auth/react"
+import { useRouter } from 'next/navigation';
 import { fetchUser } from "../actions/fetchDetails";
 import { fetchUploads } from "../actions/fetchDetails";
 import { fetchImageDetails } from "../actions/fetchDetails";
@@ -25,7 +26,25 @@ const Page = () => {
     const [searchAttribute, setSearchAttribute] = useState('patientName');
     const [filteredUploadHistory, setFilteredUploadHistory] = useState([]);
     const [filteredSharedByMeImages, setFilteredSharedByMeImages] = useState([]);
-
+    
+    const router = useRouter();
+    
+    useEffect(() => {
+      if (status === "loading") return; // Wait while checking authentication
+      
+      if (status === "unauthenticated") {
+        router.push("/login");
+      }
+    }, [status, router]);
+    
+    // Block rendering of protected content until auth check completes
+    if (status === "loading") {
+      return <div>Loading...</div>; // Or your loading component
+    }
+    
+    if (status === "unauthenticated") {
+      return null; // Don't render anything while redirecting
+    }
     const getData = async () => {
         let u = await fetchUser(userEmail);
         let images = await fetchUploads(u);
