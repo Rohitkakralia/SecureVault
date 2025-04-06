@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 import connectDB from "@/db/connectDb";
 import User from "@/models/User";
 import Image from "@/models/Image";
+import SharedImage from "@/models/SharedImage";
 
+//fetch user datails for the given email
 export async function fetchUser(useremail) {
     await connectDB();
     console.log("Fetching user:", useremail);
@@ -43,6 +45,8 @@ export const fetchUploads = async (userId) => {
     }
 };
 
+
+//fetch image details for the given imageId
 export const fetchImageDetails = async (imageId) => {
     await connectDB();
     console.log("Fetching image details for ID:", imageId);
@@ -68,3 +72,30 @@ export const fetchImageDetails = async (imageId) => {
         return null;
     }
 }
+
+
+//fetch Received Images from SharedImages
+
+export const fetchReceivedImage = async (userId) => {
+    await connectDB();
+    console.log("Fetching received images for user:", userId);
+    try {
+        const images = await SharedImage.find({ receiver: userId })
+            .sort({ sharedAt: -1 })
+            .lean(); // Convert Mongoose documents to plain objects
+
+        return images.map(image => ({
+            ...image,
+            _id: image._id.toString(),
+            sender: image.sender.toString(),
+            receiver: image.receiver.toString(),
+            imageId: image.imageId.toString(),
+            hash: image.hash, // Already a string in your schema
+            iv: image.iv, // Already a string in your schema
+            sharedAt: image.sharedAt.toISOString()
+        }));
+    } catch (error) {
+        console.error("Error fetching received images:", error);
+        return [];
+    }
+};
