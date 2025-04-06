@@ -2,16 +2,17 @@
 import { useSession, signIn } from "next-auth/react"
 import React from "react"
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { Shield, Lock } from "lucide-react"
 
 const LoginPage = () => {
   const { data: session, status } = useSession()
-  const router = useRouter()
+  const router = useRouter()  // ✅ Extract username safely
+  const username = session?.user?.email.split('@')[0]
 
   useEffect(() => {
     if (session) {
-      router.push(`/${session.user.name}`)
+      router.push(`/${username}`)
     }
   }, [session, router])
 

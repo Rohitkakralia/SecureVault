@@ -25,7 +25,7 @@ const UserDashboard = () => {
 
   return (
     <div className="text-white text-center">
-      <h1>Welcome, {username}!</h1>
+      <h1>Welcome, {session?.user?.email.split('@')[0]}!</h1>
       <FileUpload useremail={session?.user?.email} />
       
     </div>
