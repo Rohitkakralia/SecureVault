@@ -19,13 +19,19 @@ const Page = () => {
     const [sharedByMeImages, setSharedByMeImages] = useState([]); // New state for shared by me images
     const [activeTab, setActiveTab] = useState('shared'); // 'shared', 'received', or 'sharedByMe'
     const [userData, setUserData] = useState(null); // Store user data
+    
+    // Search functionality
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchAttribute, setSearchAttribute] = useState('patientName');
+    const [filteredUploadHistory, setFilteredUploadHistory] = useState([]);
+    const [filteredSharedByMeImages, setFilteredSharedByMeImages] = useState([]);
 
     const getData = async () => {
         let u = await fetchUser(userEmail);
         let images = await fetchUploads(u);
         setUploadHistory(images);
-        setFilteredHistory(images); // Initialize filtered history with all images
-      };
+        setFilteredUploadHistory(images); // Initialize filtered history with all images
+    };
 
     // Fetch user's uploads when component mounts or when userEmail changes
     useEffect(() => {
@@ -34,6 +40,45 @@ const Page = () => {
         }
     }, [status, session]);
 
+    useEffect(() => {
+      // Create a timer to delay the filtering
+      const timer = setTimeout(() => {
+          if (searchTerm.trim() === '') {
+              // If search term is empty, show all images
+              setFilteredUploadHistory(uploadHistory);
+              setFilteredSharedByMeImages(sharedByMeImages);
+              return;
+          }
+  
+          // Filter upload history (my images)
+          const filteredUploads = uploadHistory.filter(image => {
+              const value = image[searchAttribute];
+              if (typeof value === 'string') {
+                  return value.toLowerCase().includes(searchTerm.toLowerCase());
+              } else if (typeof value === 'number') {
+                  return value.toString().includes(searchTerm);
+              }
+              return false;
+          });
+          setFilteredUploadHistory(filteredUploads);
+  
+          // Filter shared by me images
+          const filteredShared = sharedByMeImages.filter(image => {
+              const value = image[searchAttribute];
+              if (typeof value === 'string') {
+                  return value.toLowerCase().includes(searchTerm.toLowerCase());
+              } else if (typeof value === 'number') {
+                  return value.toString().includes(searchTerm);
+              }
+              return false;
+          });
+          setFilteredSharedByMeImages(filteredShared);
+      }, 300); // 300ms delay
+  
+      // Cleanup the timer when component unmounts or dependencies change
+      return () => clearTimeout(timer);
+  }, [searchTerm, searchAttribute, uploadHistory, sharedByMeImages]);
+  
     const fetchUserData = async (email) => {
         setLoading(true);
         try {
@@ -46,6 +91,7 @@ const Page = () => {
                 const imagesReceived = await fetchReceivedImage(userData);
                 console.log("Images received:", imagesReceived);
                 setUploadHistory(images);
+                setFilteredUploadHistory(images); // Initialize filtered history
                 setreceivedImages(imagesReceived);
                 
                 // Fetch images shared by this user
@@ -74,6 +120,7 @@ const Page = () => {
                 const data = await response.json();
                 console.log("Images shared by me:", data);
                 setSharedByMeImages(data);
+                setFilteredSharedByMeImages(data); // Initialize filtered shared images
             } else {
                 const error = await response.json();
                 throw new Error(error.message || "Failed to fetch shared images");
@@ -119,7 +166,7 @@ const Page = () => {
         }
     };
 
-   // Modified toggle function to store full image details
+    // Modified toggle function to store full image details
     const toggleImageSelection = (image) => {
         setSelectedImages(prev => {
           // Check if this image is already selected (by ID)
@@ -295,6 +342,40 @@ const Page = () => {
         return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
+    // Search component for reuse
+    const SearchComponent = () => (
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <h3 className="text-md font-medium text-gray-700 mb-2">Search Images</h3>
+      <div className="flex flex-col sm:flex-row gap-2">
+          <select 
+              value={searchAttribute}
+              onChange={(e) => setSearchAttribute(e.target.value)}
+              className="flex-1 sm:flex-initial text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+              <option value="patientName">Patient Name</option>
+              <option value="patientAge">Patient Age</option>
+              <option value="patientGender">Patient Gender</option>
+              <option value="patientDisease">Disease</option>
+              <option value="fileName">File Name</option>
+              {activeTab === 'sharedByMe' && <option value="receiverName">Receiver Name</option>}
+          </select>
+          <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search..."
+              className="flex-1 text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <button 
+              onClick={() => setSearchTerm('')}
+              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300"
+          >
+              Clear
+          </button>
+      </div>
+  </div>
+    );
+
     return (
       <div className="min-h-screen bg-gray-100 p-4">
         <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
@@ -358,32 +439,8 @@ const Page = () => {
 
           {activeTab === "shared" ? (
             <>
-              {/* User Email Input */}
-              <div className="mb-6">
-                <label
-                  htmlFor="userEmail"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Your Email
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    id="userEmail"
-                    value={userEmail}
-                    onChange={(e) => setUserEmail(e.target.value)}
-                    className="flex-1 text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter your email"
-                  />
-                  <button
-                    onClick={() => fetchUserData(userEmail)}
-                    disabled={loading || !userEmail}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 disabled:bg-gray-300"
-                  >
-                    Fetch Images
-                  </button>
-                </div>
-              </div>
+              {/* Show search component on the Share tab */}
+              {uploadHistory.length > 0 && <SearchComponent />}
 
               {/* Receiver Email Input */}
               <div className="mb-6">
@@ -407,7 +464,7 @@ const Page = () => {
                     disabled={loading || !receiverEmail}
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-blue-300"
                   >
-                    Get Receiver ID
+                    Get Receiver
                   </button>
                 </div>
               </div>
@@ -424,16 +481,17 @@ const Page = () => {
               {/* Image Selection */}
               <div className="mt-8">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Select images to share
+                  Select images to share 
+                  {searchTerm && ` (Filtered: ${filteredUploadHistory.length} results)`}
                 </h2>
 
                 {loading ? (
                   <div className="flex justify-center items-center h-32">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   </div>
-                ) : uploadHistory.length > 0 ? (
+                ) : filteredUploadHistory.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {uploadHistory.map((image) => (
+                    {filteredUploadHistory.map((image) => (
                       <div
                         key={image._id}
                         className={`border rounded-lg overflow-hidden cursor-pointer transition-all ${
@@ -485,6 +543,12 @@ const Page = () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                ) : uploadHistory.length > 0 && searchTerm ? (
+                  <div className="text-center p-8 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-gray-500">
+                      No images match your search criteria. Try different search terms.
+                    </p>
                   </div>
                 ) : (
                   <div className="text-center p-8 bg-gray-50 rounded-lg border border-gray-200">
@@ -616,13 +680,16 @@ const Page = () => {
                 Images You've Shared
               </h2>
 
+              {/* Show search component on the Shared By Me tab */}
+              {sharedByMeImages.length > 0 && <SearchComponent />}
+
               {loading ? (
                 <div className="flex justify-center items-center h-32">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                 </div>
-              ) : sharedByMeImages.length > 0 ? (
+              ) : filteredSharedByMeImages.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {sharedByMeImages.map((image) => (
+                  {filteredSharedByMeImages.map((image) => (
                     <div
                       key={image._id}
                       className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
@@ -702,7 +769,7 @@ const Page = () => {
                             onClick={() => viewImage(image)}
                             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm"
                           >
-                            View Image
+                            View
                           </button>
 
                           <button
