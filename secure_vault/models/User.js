@@ -13,6 +13,22 @@ const userSchema = new Schema({
             return this.provider === 'credentials'; // Only require password for credential-based sign-in
         },
     },
+    Qualification: {
+        type: String,
+        default: '',
+    },
+    bio: {
+        type: String,
+        default: '',
+    },
+    location: {
+        type: String,
+        default: '',
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
     provider: {
         type: String,
         required: true,

@@ -150,6 +150,7 @@ export default function Navbar() {
                 id="dropdownAvatarName" 
                 className={`absolute right-0 z-10 ${showDropdown ? "" : "hidden"} mt-2 top-full bg-white divide-y divide-gray-100 rounded-lg shadow w-64 dark:bg-gray-700 dark:divide-gray-600`}
               >
+                <Link href="/profile">
                 <div className="flex items-center px-4 py-3">
                 <Image
                   className="w-8 h-8 rounded-full"
@@ -163,6 +164,7 @@ export default function Navbar() {
                   <div className="truncate">{session.user.email}</div>
                 </div>
                 </div>
+                </Link>
                 <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                   <li>
                     <Link href="/dashboard" className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">

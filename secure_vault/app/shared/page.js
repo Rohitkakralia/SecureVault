@@ -28,7 +28,6 @@ const Page = () => {
     const [filteredSharedByMeImages, setFilteredSharedByMeImages] = useState([]);
     
     const router = useRouter();
-    
     useEffect(() => {
       if (status === "loading") return; // Wait while checking authentication
       
@@ -37,28 +36,13 @@ const Page = () => {
       }
     }, [status, router]);
     
-    // Block rendering of protected content until auth check completes
-    if (status === "loading") {
-      return <div>Loading...</div>; // Or your loading component
-    }
-    
-    if (status === "unauthenticated") {
-      return null; // Don't render anything while redirecting
-    }
-    const getData = async () => {
-        let u = await fetchUser(userEmail);
-        let images = await fetchUploads(u);
-        setUploadHistory(images);
-        setFilteredUploadHistory(images); // Initialize filtered history with all images
-    };
-
-    // Fetch user's uploads when component mounts or when userEmail changes
+    // Second useEffect must be defined before any conditional returns
     useEffect(() => {
-        if (status === "authenticated" && session?.user?.email) {
-            fetchUserData(session.user.email);
-        }
+      if (status === "authenticated" && session?.user?.email) {
+        fetchUserData(session.user.email);
+      }
     }, [status, session]);
-
+    
     useEffect(() => {
       // Create a timer to delay the filtering
       const timer = setTimeout(() => {
@@ -98,6 +82,25 @@ const Page = () => {
       return () => clearTimeout(timer);
   }, [searchTerm, searchAttribute, uploadHistory, sharedByMeImages]);
   
+    // Define your helper functions (these aren't Hooks)
+    const getData = async () => {
+      let u = await fetchUser(userEmail);
+      let images = await fetchUploads(u);
+      setUploadHistory(images);
+      setFilteredUploadHistory(images); // Initialize filtered history with all images
+    };
+    
+    // Now you can have conditional returns
+    // Block rendering of protected content until auth check completes
+    if (status === "loading") {
+      return <div>Loading...</div>; // Or your loading component
+    }
+    
+    if (status === "unauthenticated") {
+      return null; // Don't render anything while redirecting
+    }
+    
+    
     const fetchUserData = async (email) => {
         setLoading(true);
         try {

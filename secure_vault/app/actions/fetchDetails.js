@@ -99,3 +99,39 @@ export const fetchReceivedImage = async (userId) => {
         return [];
     }
 };
+
+
+    export const fetchPersonalDetails = async (userEmail) => {
+        try {
+            await connectDB();
+            console.log("Fetching user details for email:", userEmail);
+            
+            // Explicitly select the fields you want to retrieve
+            const user = await User.findOne(
+                { email: userEmail },
+                'email qualification bio location updatedAt' // Explicitly select fields
+            ).lean();
+            
+            if (!user) {
+                console.error("User not found with email:", userEmail);
+                return null;
+            }
+            
+            console.log("Found user data:", user); // Debug log to see what's coming from DB
+            console.log("Qualification value:", user.Qualification); // Add this specific log
+
+            // Transform the user object
+            return {
+                ...user,
+                _id: user._id.toString(),
+                updatedAt: user.updatedAt ? user.updatedAt.toISOString() : null,
+                // Ensure these specific fields are included (with defaults if they're missing)
+                qualification: user.Qualification || "",
+                bio: user.bio || "",
+                location: user.location || ""
+            };
+        } catch (error) {
+            console.error("Error fetching user details:", error);
+            throw error;
+        }
+    };
