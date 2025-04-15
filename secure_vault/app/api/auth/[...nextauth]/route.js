@@ -17,6 +17,8 @@ export const authOptions = {
     })
   ],
 
+  secret: process.env.NEXTAUTH_SECRET,
+
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
         console.log('SignIn callback triggered:', { user, account, profile, email });
