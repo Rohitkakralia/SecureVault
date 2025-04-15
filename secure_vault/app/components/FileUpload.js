@@ -130,29 +130,32 @@ export default function FileUpload({ useremail }) {
       patientDisease,
       patientGender,
       file,
+      fileType: file.type // Store file type
     });
     setLoading(true);
     try {
       const { encryptedData, iv } = await encryptImage(file);
       const encryptedFile = new File(
         [encryptedData],
-        file.name, // Original filename from the input file
-        { type: file.type } // Preserve the original MIME type
+        file.name,
+        { type: file.type }
       );
 
       const formData = new FormData();
-      formData.append("file", encryptedFile); // Encrypted file
-      formData.append("iv", iv); // IV as base64 string
-      formData.append("useremail", useremail || ""); // Pass the user identifier
+      formData.append("file", encryptedFile);
+      formData.append("iv", iv);
+      formData.append("useremail", useremail || "");
       formData.append("patientName", patientName || "");
       formData.append("patientAge", patientAge || "");
       formData.append("patientDisease", patientDisease || "");
       formData.append("patientGender", patientGender || "");
+      formData.append("fileType", file.type); // Store original file type
 
       console.log("formData:", formData.get("patientName"));
       console.log("formData:", formData.get("patientAge"));
       console.log("formData:", formData.get("patientDisease"));
       console.log("formData:", formData.get("patientGender"));
+      console.log("formData fileType:", formData.get("fileType"));
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -182,8 +185,16 @@ export default function FileUpload({ useremail }) {
       const response = await fetch(`https://gateway.pinata.cloud/ipfs/${hash}`);
       if (!response.ok) throw new Error("Failed to download encrypted file");
       const encryptedData = new Uint8Array(await response.arrayBuffer());
-      const decryptedBlob = await decryptImage(encryptedData, iv);
-      setDecryptedImage(URL.createObjectURL(decryptedBlob));
+      
+      // Get the file type for the current upload
+      const fileType = file ? file.type : 'application/octet-stream';
+      
+      const decryptedBlob = await decryptImage(encryptedData, iv, fileType);
+      
+      setDecryptedImage({
+        url: URL.createObjectURL(decryptedBlob),
+        type: fileType
+      });
     } catch (error) {
       console.error("Decryption error:", error);
       alert("Failed to decrypt file");
@@ -198,14 +209,36 @@ export default function FileUpload({ useremail }) {
       );
       if (!response.ok) throw new Error("Failed to download encrypted file");
       const encryptedData = new Uint8Array(await response.arrayBuffer());
-      const decryptedBlob = await decryptImage(encryptedData, record.iv);
-      setDecryptedImage(URL.createObjectURL(decryptedBlob));
+      
+      // Use the fileType from the record or default to a generic type
+      const fileType = record.fileType || 'application/octet-stream';
+      
+      const decryptedBlob = await decryptImage(encryptedData, record.iv, fileType);
+      
+      // Create an object URL from the blob
+      const url = URL.createObjectURL(decryptedBlob);
+      
+      setDecryptedImage({
+        url: url,
+        type: fileType,
+        name: record.fileName || "Decrypted File"
+      });
+      
+      // Automatically download the file if it's not an image
+      if (!fileType.startsWith('image/')) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = record.fileName || "decrypted-file";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } catch (error) {
       console.error("Decryption error:", error);
       alert("Failed to decrypt file from history");
     }
   };
-
+  
   // Add this function to your component
   const handleDeleteHistory = async (upload) => {
     if (!upload || !upload._id) {
@@ -736,122 +769,122 @@ export default function FileUpload({ useremail }) {
               ) : (
                 <div className="overflow-y-auto max-h-96 pr-1">
                   {filteredHistory.map((upload, index) => (
-                    <div
-                      key={upload._id || index}
-                      className="border border-gray-200 rounded-xl mb-3 overflow-hidden"
-                    >
-                      <div className="bg-gray-50 p-3 border-b border-gray-200">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium text-gray-700">
-                            {upload.fileName}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(upload.uploadDate).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
+  <div
+    key={upload._id || index}
+    className="border border-gray-200 rounded-xl mb-3 overflow-hidden"
+  >
+    <div className="bg-gray-50 p-3 border-b border-gray-200">
+      <div className="flex justify-between items-center">
+        <span className="font-medium text-gray-700">
+          {upload.fileName}
+        </span>
+        <span className="text-xs text-gray-500">
+          {new Date(upload.uploadDate).toLocaleString()}
+        </span>
+      </div>
+    </div>
 
-                      <div className="p-3">
-                        <div className="grid grid-cols-2 gap-2 text-sm mb-3">
-                          <div className="bg-gray-50 p-2 rounded-lg">
-                            <span className="text-xs text-gray-500">
-                              Patient Name
-                            </span>
-                            <p className="font-medium text-black">
-                              {upload.patientName || "N/A"}
-                            </p>
-                          </div>
-                          <div className="bg-gray-50 p-2 rounded-lg">
-                            <span className="text-xs text-gray-500">Age</span>
-                            <p className="font-medium text-black">
-                              {upload.patientAge || "N/A"}
-                            </p>
-                          </div>
-                          <div className="bg-gray-50 p-2 rounded-lg">
-                            <span className="text-xs text-gray-500">
-                              Disease
-                            </span>
-                            <p className="font-medium text-black">
-                              {upload.patientDisease || "N/A"}
-                            </p>
-                          </div>
-                          <div className="bg-gray-50 p-2 rounded-lg">
-                            <span className="text-xs text-gray-500">
-                              Gender
-                            </span>
-                            <p className="font-medium text-black">
-                              {upload.patientGender || "N/A"}
-                            </p>
-                          </div>
-                        </div>
+    <div className="p-3">
+      <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+        <div className="bg-gray-50 p-2 rounded-lg">
+          <span className="text-xs text-gray-500">
+            Patient Name
+          </span>
+          <p className="font-medium text-black">
+            {upload.patientName || "N/A"}
+          </p>
+        </div>
+        <div className="bg-gray-50 p-2 rounded-lg">
+          <span className="text-xs text-gray-500">Age</span>
+          <p className="font-medium text-black">
+            {upload.patientAge || "N/A"}
+          </p>
+        </div>
+        <div className="bg-gray-50 p-2 rounded-lg">
+          <span className="text-xs text-gray-500">
+            Disease
+          </span>
+          <p className="font-medium text-black">
+            {upload.patientDisease || "N/A"}
+          </p>
+        </div>
+        <div className="bg-gray-50 p-2 rounded-lg">
+          <span className="text-xs text-gray-500">
+            Gender
+          </span>
+          <p className="font-medium text-black">
+            {upload.patientGender || "N/A"}
+          </p>
+        </div>
+      </div>
 
-                        <div className="flex justify-between items-center mt-2">
-                          <a
-                            href={`https://gateway.pinata.cloud/ipfs/${upload.hash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center"
-                          >
-                            <svg
-                              className="w-4 h-4 mr-1"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                              ></path>
-                            </svg>
-                            View on IPFS
-                          </a>
-                          <button
-                            onClick={() => handleDecryptHistory(upload)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm font-medium flex items-center transition-colors duration-200"
-                          >
-                            <svg
-                              className="w-4 h-4 mr-1"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
-                              ></path>
-                            </svg>
-                            Decrypt
-                          </button>
-                          <button
-                            onClick={() => handleDeleteHistory(upload)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-medium flex items-center transition-colors duration-200"
-                          >
-                            <svg
-                              className="w-4 h-4 mr-1"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6h16zM10 11v6M14 11v6"
-                              />
-                            </svg>
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+      <div className="flex justify-between items-center mt-2">
+        <a
+          href={`https://gateway.pinata.cloud/ipfs/${upload.hash}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+            ></path>
+          </svg>
+          View on IPFS
+        </a>
+        <button
+          onClick={() => handleDecryptHistory(upload)}
+          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm font-medium flex items-center transition-colors duration-200"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+            ></path>
+          </svg>
+          Decrypt
+        </button>
+        <button
+          onClick={() => handleDeleteHistory(upload)}
+          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-medium flex items-center transition-colors duration-200"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m2 0v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6h16zM10 11v6M14 11v6"
+            />
+          </svg>
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+))}
                 </div>
               )}
             </div>
@@ -859,91 +892,153 @@ export default function FileUpload({ useremail }) {
         </div>
 
         {/* Decrypted Image Section */}
-        {decryptedImage && (
-          <div className="mt-6 bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="bg-green-600 px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
-                Decrypted Medical Record
-              </h2>
-              <button
-                onClick={handleHideImage}
-                className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors duration-200"
-                title="Hide Image"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </button>
-            </div>
+       {/* Decrypted File Section */}
+{decryptedImage && (
+  <div className="mt-6 bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="bg-green-600 px-6 py-4 flex justify-between items-center">
+      <h2 className="text-xl font-semibold text-white flex items-center">
+        <svg
+          className="w-5 h-5 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          ></path>
+        </svg>
+        Decrypted Medical Record: {decryptedImage.name}
+      </h2>
+      <div className="flex space-x-2">
+        <a
+          href={decryptedImage.url}
+          download={decryptedImage.name || "download"}
+          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full p-2 flex items-center justify-center transition-colors duration-200"
+          title="Download File"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            ></path>
+          </svg>
+        </a>
+        <button
+          onClick={handleHideImage}
+          className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full p-2 flex items-center justify-center transition-colors duration-200"
+          title="Hide File"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
 
-            <div className="p-6 flex justify-center">
-              <img
-                src={decryptedImage}
-                alt="Decrypted Medical Record"
-                className="max-h-96 rounded-lg shadow-md cursor-pointer transition-all duration-300 hover:scale-105"
-                onClick={handleImageClick}
-              />
-            </div>
+    <div className="p-6 flex justify-center">
+      {decryptedImage.type.startsWith('image/') ? (
+        <img
+          src={decryptedImage.url}
+          alt="Decrypted Medical Record"
+          className="max-h-96 rounded-lg shadow-md cursor-pointer transition-all duration-300 hover:scale-105"
+          onClick={handleImageClick}
+        />
+      ) : decryptedImage.type === 'application/pdf' ? (
+        <div className="w-full h-96 rounded-lg shadow-md border border-gray-200">
+          <object
+            data={decryptedImage.url}
+            type="application/pdf"
+            width="100%"
+            height="100%"
+            className="rounded-lg"
+          >
+            <p>
+              PDF cannot be displayed. Please
+              <a href={decryptedImage.url} download={decryptedImage.name || "download"} className="text-blue-600 hover:underline"> download </a>
+              to view.
+            </p>
+          </object>
+        </div>
+      ) : (
+        <div className="text-center bg-gray-50 p-8 rounded-lg border border-gray-200 shadow-sm w-full">
+          <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
           </div>
-        )}
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{decryptedImage.name}</h3>
+          <p className="text-gray-600 mb-4">File type: {decryptedImage.type}</p>
+          <a
+            href={decryptedImage.url}
+            download={decryptedImage.name || "download"}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200 inline-flex items-center"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            Download File
+          </a>
+        </div>
+      )}
+    </div>
+  </div>
+)}
 
-        {/* Modal for enlarged image */}
-        {isModalOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 p-4">
-            <div className="relative max-w-4xl w-full">
-              <button
-                onClick={handleCloseModal}
-                className="absolute -top-12 right-0 bg-white text-black rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors duration-200"
-                title="Close Enlarged View"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </button>
-              <img
-                src={decryptedImage}
-                alt="Enlarged Medical Record"
-                className="max-w-full max-h-[85vh] rounded-lg shadow-2xl mx-auto"
-              />
-            </div>
-          </div>
-        )}
+{/* Modal for enlarged image */}
+{isModalOpen && decryptedImage && decryptedImage.type.startsWith('image/') && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 p-4">
+    <div className="relative max-w-4xl w-full">
+      <button
+        onClick={handleCloseModal}
+        className="absolute -top-12 right-0 bg-white text-black rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-200 transition-colors duration-200"
+        title="Close Enlarged View"
+      >
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+      <img
+        src={decryptedImage.url}
+        alt="Enlarged Medical Record"
+        className="max-w-full max-h-[85vh] rounded-lg shadow-2xl mx-auto"
+      />
+    </div>
+  </div>
+)}
       </div>
     </div>
   );
@@ -975,7 +1070,7 @@ async function encryptImage(file) {
 }
 
 // Decrypt the file using AES-CBC
-async function decryptImage(encryptedData, iv) {
+async function decryptImage(encryptedData, iv, fileType = 'application/octet-stream') {
   const ivBuffer = new Uint8Array(Buffer.from(iv, "base64"));
   const keyBuffer = new TextEncoder().encode(
     "0123456789abcdef0123456789abcdef"
@@ -992,5 +1087,5 @@ async function decryptImage(encryptedData, iv) {
     key,
     encryptedData
   );
-  return new Blob([decryptedData]);
+  return new Blob([decryptedData], { type: fileType });
 }

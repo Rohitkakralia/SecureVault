@@ -20,8 +20,11 @@ export async function POST(req) {
     const patientAge = formData.get("patientAge");
     const patientDisease = formData.get("patientDisease");
     const patientGender = formData.get("patientGender");
+    // Get the file type from the formData
+    const fileType = formData.get("fileType") || file.type || "application/octet-stream";
 
     console.log("Patient Info.:", patientAge, patientDisease, patientGender);
+    console.log("File Type:", fileType);
 
     if (!file || !iv || !userEmail) {
       return NextResponse.json({ 
@@ -52,7 +55,12 @@ export async function POST(req) {
     const buffer = Buffer.from(await file.arrayBuffer());
 
     pinataFormData.append("file", buffer, file.name);
-    pinataFormData.append("pinataMetadata", JSON.stringify({ name: file.name }));
+    pinataFormData.append("pinataMetadata", JSON.stringify({ 
+      name: file.name,
+      keyvalues: {
+        fileType: fileType // Store file type in Pinata metadata 
+      }
+    }));
     pinataFormData.append("pinataOptions", JSON.stringify({ cidVersion: 1 }));
 
     console.log("Uploading encrypted file to Pinata...");
@@ -71,13 +79,14 @@ export async function POST(req) {
 
     const ipfsHash = pinataResponse.data.IpfsHash;
     
-    // Create and save the image record with the user's ObjectId
+    // Create and save the image record with the user's ObjectId and fileType
     const newImage = new Image({
       user: user._id,
       hash: ipfsHash,
       iv: iv,
       userName: user.username,
       fileName: file.name,
+      fileType: fileType, // Store the file type in the database
       patientName: patientName || '',
       patientAge: patientAge ? parseInt(patientAge, 10) : null, // Convert to number
       patientDisease: patientDisease || '',
@@ -91,6 +100,7 @@ export async function POST(req) {
     return NextResponse.json({
       hash: ipfsHash,
       iv,
+      fileType,
       _id: newImage._id
     }, { status: 200 });
   } catch (error) {

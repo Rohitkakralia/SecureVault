@@ -32,6 +32,10 @@ const ImageSchema = new mongoose.Schema({
   patientGender: { 
     type: String 
   },
+  fileType: {  // New field for storing file type
+    type: String,
+    default: "application/octet-stream"
+  },
   uploadDate: { 
     type: Date, 
     default: Date.now 
