@@ -135,7 +135,7 @@ export default function Navbar() {
                 />
                 {/* <span className="ml-2">{session.user.name}</span> */}
               </button>
-              <div className="py-2">
+              {/* <div className="py-2">
                   <Link 
                     href="/login" 
                     onClick={() => signOut()} 
@@ -143,7 +143,7 @@ export default function Navbar() {
                   >
                     Sign out
                   </Link>
-                </div>
+                </div> */}
               
               {/* Dropdown menu */}
               <div 

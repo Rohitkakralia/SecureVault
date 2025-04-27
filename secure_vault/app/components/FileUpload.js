@@ -7,7 +7,7 @@ export default function FileUpload({ useremail }) {
   const [patientName, setPatientName] = useState("");
   const [patientAge, setPatientAge] = useState("");
   const [patientDisease, setPatientDisease] = useState("");
-  const [patientGender, setGenderDisease] = useState("");
+  const [patientGender, setPatientGender] = useState("");
   const [hash, setHash] = useState("");
   const [loading, setLoading] = useState(false);
   const [decryptedImage, setDecryptedImage] = useState(null);
@@ -225,14 +225,14 @@ export default function FileUpload({ useremail }) {
       });
       
       // Automatically download the file if it's not an image
-      if (!fileType.startsWith('image/')) {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = record.fileName || "decrypted-file";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      // if (!fileType.startsWith('image/')) {
+      //   const link = document.createElement('a');
+      //   link.href = url;
+      //   link.download = record.fileName || "decrypted-file";
+      //   document.body.appendChild(link);
+      //   link.click();
+      //   document.body.removeChild(link);
+      // }
     } catch (error) {
       console.error("Decryption error:", error);
       alert("Failed to decrypt file from history");
@@ -308,7 +308,7 @@ export default function FileUpload({ useremail }) {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-6">
+    <div className=" min-h-screen py-6">
       <div className="max-w-6xl mx-auto px-4">
         <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">
           Medical Record Management
@@ -316,317 +316,499 @@ export default function FileUpload({ useremail }) {
 
         <div className="grid grid-cols-1 lg:grid-row-2 gap-6">
           {/* Upload Section */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="bg-blue-600 px-6 py-4">
-              <h2 className="text-xl font-semibold text-white flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  ></path>
+          <div className="flex flex-col-reverse md:flex-row gap-6">
+
+
+
+          {/* <div className="w-full md:w-1/3 space-y-6"> */}
+          {/* Statistics Card */}
+         
+          
+          {/* Suggestions Card */}
+          {/* <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-200">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3">
+              <h3 className="text-lg font-semibold text-white flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                 </svg>
-                Upload Medical Record
-              </h2>
+                Suggested Actions
+              </h3>
             </div>
-
-            <div className="p-6">
-              {/* Patient Information Form */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label
-                    htmlFor="patientName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Patient Name
-                  </label>
-                  <input
-                    type="text"
-                    id="patientName"
-                    value={patientName}
-                    onChange={(e) => setPatientName(e.target.value)}
-                    className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter patient name"
-                  />
+            
+            <div className="p-5">
+              <div className="space-y-3">
+                <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-blue-700">Complete patient profile</p>
+                    <p className="text-xs text-blue-600">Add more details to improve record accuracy</p>
+                  </div>
                 </div>
-
-                <div>
-                  <label
-                    htmlFor="patientAge"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Patient Age
-                  </label>
-                  <input
-                    type="number"
-                    id="patientAge"
-                    value={patientAge}
-                    onChange={(e) => setPatientAge(e.target.value)}
-                    min="0"
-                    max="150"
-                    className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter patient age"
-                  />
+                
+                <div className="flex items-center p-3 bg-green-50 rounded-lg border border-green-100">
+                  <div className="bg-green-100 p-2 rounded-lg mr-3">
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-green-700">Schedule follow-up</p>
+                    <p className="text-xs text-green-600">Next check-up is due in 2 weeks</p>
+                  </div>
                 </div>
-
-                <div>
-                  <label
-                    htmlFor="patientDisease"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Patient Disease
-                  </label>
-                  <input
-                    type="text"
-                    id="patientDisease"
-                    value={patientDisease}
-                    onChange={(e) => setPatientDisease(e.target.value)}
-                    className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter patient disease"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="patientGender"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Patient Gender
-                  </label>
-                  <select
-                    id="patientGender"
-                    value={patientGender}
-                    onChange={(e) => setGenderDisease(e.target.value)}
-                    className="w-full text-black px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="" disabled >
-                      Select gender
-                    </option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
+                
+                <div className="flex items-center p-3 bg-amber-50 rounded-lg border border-amber-100">
+                  <div className="bg-amber-100 p-2 rounded-lg mr-3">
+                    <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-amber-700">Update medication list</p>
+                    <p className="text-xs text-amber-600">Last updated 30 days ago</p>
+                  </div>
                 </div>
               </div>
+            </div>
+          </div> */}
+        {/* </div> */}
 
-              {/* File Upload Area */}
-              <div
-                className={`border-2 ${
-                  isDragging
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-dashed border-gray-300"
-                } 
-                          rounded-lg p-6 text-center h-48 flex flex-col items-center justify-center cursor-pointer
-                          transition-all duration-300 hover:bg-gray-50 mb-6`}
-                onClick={() => fileInputRef.current.click()}
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
+
+
+
+
+
+          <div className="w-full md:w-full w-8xl mx-auto bg-gradient-to-br from-blue-50 to-white rounded-2xl shadow-xl overflow-hidden border border-blue-100">
+      {/* Header */}
+      <div className="relative bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
+        <div className="absolute right-0 top-0 w-32 h-32 bg-blue-500 rounded-full opacity-20 -mr-16 -mt-16"></div>
+        <div className="absolute left-0 bottom-0 w-24 h-24 bg-blue-800 rounded-full opacity-20 -ml-12 -mb-12"></div>
+        <h2 className="text-2xl font-bold text-white flex items-center relative z-10">
+          <div className="bg-white/20 p-2 rounded-lg mr-3">
+            <svg
+              className="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              ></path>
+            </svg>
+          </div>
+          Medical Record Uploader
+        </h2>
+        <p className="text-blue-100 ml-12 mt-1">Secure, encrypted storage for patient records</p>
+      </div>
+
+      <div className="p-6">
+
+      <div className="flex md:flex-row flex-col lg:flex-row w-full gap-4 mb-6">
+      {/* Upload Statistics Card - takes full width on mobile, 1/3 on larger screens */}
+      <div className="bg-white w-full md:w-1/3 lg:w-1/3 rounded-2xl shadow-md overflow-hidden border border-gray-200">
+        <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-3">
+          <h3 className="text-lg font-semibold text-white flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            Upload Statistics
+          </h3>
+        </div>
+        
+        <div className="p-5">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-4xl text-gray-500">Total Uploads</p>
+              <p className="text-3xl md:text-3xl font-bold text-gray-800 mt-2">{uploadHistory.length}</p>
+            </div>
+            <div className="bg-purple-100 p-2 md:p-3 rounded-full">
+              <svg className="w-6 h-6 md:w-8 md:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Patient Information Form - takes full width on mobile, 2/3 on larger screens */}
+      <div className="bg-white p-4 md:w-2/3 md:p-5 w-full lg:w-2/3 rounded-xl shadow-sm border border-gray-100">
+        <h3 className="text-lg font-semibold text-gray-700 mb-3 md:mb-4 flex items-center">
+          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          Patient Information
+        </h3>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+          <div className="group">
+            <label
+              htmlFor="patientName"
+              className="block text-sm font-medium text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+            >
+              Patient Name
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="patientName"
+                value={patientName}
+                onChange={(e) => setPatientName(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Full name"
+              />
+            </div>
+          </div>
+
+          <div className="group">
+            <label
+              htmlFor="patientAge"
+              className="block text-sm font-medium text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+            >
+              Patient Age
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <input
+                type="number"
+                id="patientAge"
+                value={patientAge}
+                onChange={(e) => setPatientAge(e.target.value)}
+                min="0"
+                max="150"
+                className="w-full text-black pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Age"
+              />
+            </div>
+          </div>
+
+          <div className="group">
+            <label
+              htmlFor="patientDisease"
+              className="block text-sm font-medium text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+            >
+              Patient Condition
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="patientDisease"
+                value={patientDisease}
+                onChange={(e) => setPatientDisease(e.target.value)}
+                className="w-full text-black pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Medical condition"
+              />
+            </div>
+          </div>
+
+          <div className="group">
+            <label
+              htmlFor="patientGender"
+              className="block text-sm font-medium text-gray-700 mb-1 group-focus-within:text-blue-600 transition-colors"
+            >
+              Patient Gender
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </div>
+              <select
+                id="patientGender"
+                value={patientGender}
+                onChange={(e) => setPatientGender(e.target.value)}
+                className="w-full text-black pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
               >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleInputChange}
-                  className="hidden"
-                />
+                <option value="" disabled>Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                <div className="bg-blue-100 p-3 rounded-full mb-3">
+        {/* File Upload Area */}
+        <div
+          className={`relative bg-white rounded-xl ${
+            isDragging ? "ring-2 ring-blue-500 bg-blue-50" : "border-2 border-dashed border-gray-300"
+          } 
+          p-6 text-center flex flex-col items-center justify-center cursor-pointer
+          transition-all duration-300 hover:bg-blue-50 mb-6 overflow-hidden`}
+          onClick={() => fileInputRef.current.click()}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-16 h-16 bg-blue-100 rounded-full -mr-8 -mt-8 opacity-70"></div>
+          <div className="absolute bottom-0 left-0 w-12 h-12 bg-blue-100 rounded-full -ml-6 -mb-6 opacity-70"></div>
+          
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleInputChange}
+            className="hidden"
+          />
+
+          <div className={`mb-4 transform transition-transform ${isDragging ? 'scale-110' : ''}`}>
+            <div className="bg-blue-100 rounded-full p-4 mx-auto">
+              <svg
+                className="w-10 h-10 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                ></path>
+              </svg>
+            </div>
+          </div>
+
+          <p className="text-lg font-medium text-gray-700 mb-1">
+            {isDragging ? "Drop your file here" : "Drag & drop your medical record"}
+          </p>
+          <p className="text-sm text-gray-500 mb-3">
+            or <span className="text-blue-600 font-medium underline">browse files</span>
+          </p>
+          <p className="text-xs text-gray-400">Supported formats: PDF, JPG, PNG, DOCX</p>
+
+          {file && (
+            <div className="mt-4 bg-blue-50 p-3 rounded-lg max-w-full flex items-center border border-blue-100">
+              <svg className="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <p className="text-sm text-blue-700 font-medium truncate">{file.name}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Upload Button */}
+        <button
+          onClick={handleUpload}
+          className={`relative overflow-hidden font-semibold px-6 py-3 rounded-lg w-full transition-all duration-300 flex items-center justify-center ${
+            loading || !file || !patientName || !patientAge || !patientDisease
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg hover:from-blue-700 hover:to-blue-800"
+          }`}
+          disabled={loading || !file || !patientName || !patientAge || !patientDisease}
+        >
+          {loading ? (
+            <>
+              <svg
+                className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Processing Upload...
+            </>
+          ) : (
+            <>
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                ></path>
+              </svg>
+              Upload & Secure Encrypt
+            </>
+          )}
+          
+          {/* Decorative dot animation when button is active */}
+          {(!loading && file && patientName && patientAge && patientDisease) && (
+            <>
+              <span className="absolute right-0 top-0 h-3 w-3 bg-blue-300 rounded-full opacity-70 animate-ping"></span>
+              <span className="absolute right-0 top-0 h-3 w-3 bg-blue-400 rounded-full"></span>
+            </>
+          )}
+        </button>
+
+        {/* Upload Success Section */}
+        {hash && (
+          <div className="mt-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl overflow-hidden shadow-sm border border-blue-100 transform transition-all duration-500 animate-fadeIn">
+            <div className="bg-gradient-to-r from-green-500 to-blue-500 px-6 py-3">
+              <div className="flex items-center text-white">
+                <div className="bg-white/20 p-1 rounded-full">
                   <svg
-                    className="w-8 h-8 text-blue-600"
+                    className="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                     ></path>
                   </svg>
                 </div>
-
-                <p className="text-md text-gray-600 mb-1">
-                  Drag & drop your medical record here
-                </p>
-                <p className="text-sm text-gray-500">
-                  or{" "}
-                  <span className="text-blue-600 font-medium">
-                    browse files
-                  </span>
-                </p>
-
-                {file && (
-                  <div className="mt-3 bg-blue-50 p-2 rounded-lg max-w-full">
-                    <p className="text-sm text-blue-700 font-medium truncate">
-                      {file.name}
-                    </p>
-                  </div>
-                )}
+                <span className="font-bold ml-2">Upload Complete & Encrypted</span>
               </div>
+            </div>
 
-              <button
-                onClick={handleUpload}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-3 rounded-lg disabled:bg-gray-400 w-full transition-colors duration-200 flex items-center justify-center"
-                disabled={
-                  loading ||
-                  !file ||
-                  !patientName ||
-                  !patientAge ||
-                  !patientDisease
-                }
-              >
-                {loading ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"
-                      ></path>
-                    </svg>
-                    Upload & Encrypt
-                  </>
-                )}
-              </button>
-
-              {/* Upload Success Section */}
-              {hash && (
-                <div className="mt-6 p-4 border rounded-xl bg-blue-50 border-blue-200 text-black">
-                  <div className="flex items-center mb-3 text-blue-600">
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      ></path>
-                    </svg>
-                    <span className="font-semibold">Upload Successful</span>
+            <div className="p-5">
+              <div className="bg-white p-4 rounded-lg mb-4 shadow-sm">
+                <p className="font-semibold mb-3 text-gray-700 flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                  Patient Information
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="bg-gray-50 p-2 rounded">
+                    <p className="text-gray-500 text-xs">Name</p>
+                    <p className="font-medium text-gray-700">{patientName}</p>
                   </div>
-
-                  <div className="bg-white p-3 rounded-lg mb-3 shadow-sm">
-                    <p className="font-semibold mb-2">Patient Information:</p>
-                    <div className="grid grid-cols-2 gap-1 text-sm">
-                      <p>
-                        <strong>Name:</strong> {patientName}
-                      </p>
-                      <p>
-                        <strong>Age:</strong> {patientAge}
-                      </p>
-                      <p>
-                        <strong>Disease:</strong> {patientDisease}
-                      </p>
-                      <p>
-                        <strong>Gender:</strong> {patientGender || "N/A"}
-                      </p>
-                    </div>
+                  <div className="bg-gray-50 p-2 rounded">
+                    <p className="text-gray-500 text-xs">Age</p>
+                    <p className="font-medium text-gray-700">{patientAge}</p>
                   </div>
-
-                  <div className="mb-3">
-                    <p className="font-semibold text-sm mb-1">
-                      Encrypted File Hash:
-                    </p>
-                    <p className="text-xs font-mono bg-gray-100 p-2 rounded-lg break-all border border-gray-200">
-                      {hash}
-                    </p>
+                  <div className="bg-gray-50 p-2 rounded">
+                    <p className="text-gray-500 text-xs">Condition</p>
+                    <p className="font-medium text-gray-700">{patientDisease}</p>
                   </div>
-
-                  <div className="flex items-center justify-between">
-                    <a
-                      href={`https://gateway.pinata.cloud/ipfs/${hash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 flex items-center text-sm"
-                    >
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        ></path>
-                      </svg>
-                      View on IPFS
-                    </a>
-
-                    <button
-                      onClick={handleDecrypt}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-colors duration-200"
-                    >
-                      <svg
-                        className="w-4 h-4 mr-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
-                        ></path>
-                      </svg>
-                      Decrypt & View
-                    </button>
+                  <div className="bg-gray-50 p-2 rounded">
+                    <p className="text-gray-500 text-xs">Gender</p>
+                    <p className="font-medium text-gray-700">{patientGender || "Not specified"}</p>
                   </div>
                 </div>
-              )}
+              </div>
+
+              <div className="mb-4">
+                <p className="font-semibold text-sm mb-2 flex items-center text-gray-700">
+                  <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
+                  Encrypted Record Hash
+                </p>
+                <div className="bg-gray-800 text-green-400 p-3 rounded-lg font-mono text-xs overflow-x-auto flex items-center">
+                  <svg className="flex-shrink-0 w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                      d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                  </svg>
+                  <span className="break-all tracking-wider">{hash}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href={`https://gateway.pinata.cloud/ipfs/${hash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    ></path>
+                  </svg>
+                  View on IPFS
+                </a>
+
+                <button
+                  onClick={handleDecrypt}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-sm"
+                >
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                    ></path>
+                  </svg>
+                  Decrypt & View Record
+                </button>
+              </div>
             </div>
           </div>
+        )}
+      </div>
+    </div>
+    </div>
 
           {/* History Section */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -859,7 +1041,7 @@ export default function FileUpload({ useremail }) {
               d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
             ></path>
           </svg>
-          Decrypt
+          Decrypt with {upload.iv}
         </button>
         <button
           onClick={() => handleDeleteHistory(upload)}
@@ -1008,7 +1190,7 @@ export default function FileUpload({ useremail }) {
 )}
 
 {/* Modal for enlarged image */}
-{isModalOpen && decryptedImage && decryptedImage.type.startsWith('image/') && (
+{isModalOpen && decryptedImage && (
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 p-4">
     <div className="relative max-w-4xl w-full">
       <button
@@ -1031,11 +1213,38 @@ export default function FileUpload({ useremail }) {
           ></path>
         </svg>
       </button>
-      <img
-        src={decryptedImage.url}
-        alt="Enlarged Medical Record"
-        className="max-w-full max-h-[85vh] rounded-lg shadow-2xl mx-auto"
-      />
+      
+      {/* Display image if it's an image file */}
+      {decryptedImage.type.startsWith('image/') && (
+        <img
+          src={decryptedImage.url}
+          alt="Enlarged Medical Record"
+          className="max-w-full max-h-[85vh] rounded-lg shadow-2xl mx-auto"
+        />
+      )}
+      
+      {/* Display PDF in an iframe if it's a PDF */}
+      {decryptedImage.type === 'application/pdf' && (
+        <iframe
+          src={decryptedImage.url}
+          title="PDF Document"
+          className="w-full h-[85vh] rounded-lg shadow-2xl bg-white"
+        />
+      )}
+      
+      {/* For other document types, you might want to add viewers or fallback */}
+      {!decryptedImage.type.startsWith('image/') && decryptedImage.type !== 'application/pdf' && (
+        <div className="w-full h-[85vh] rounded-lg shadow-2xl bg-white p-4 flex flex-col items-center justify-center">
+          <p className="text-lg mb-4">Document preview not available for {decryptedImage.type}</p>
+          <a 
+            href={decryptedImage.url} 
+            download={decryptedImage.name || "document"}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200"
+          >
+            Download File
+          </a>
+        </div>
+      )}
     </div>
   </div>
 )}

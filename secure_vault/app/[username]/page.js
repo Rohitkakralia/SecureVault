@@ -24,7 +24,14 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="text-white text-center">
+    <div 
+    className="text-white text-center"
+    style={{ 
+      backgroundImage: "url('/mainbackground.jpg')", 
+      backgroundSize: "cover",
+      backgroundPosition: "center"
+    }}
+  >
       <h1>Welcome, {session?.user?.email.split('@')[0]}!</h1>
       <FileUpload useremail={session?.user?.email} />
       
