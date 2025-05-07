@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+
 import {
   Shield,
   Database,
@@ -30,7 +31,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-[#4C8BF5] hover:bg-[#3A73CC] text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2">
                 <Lock size={20} />
-                Secure Your Documents
+                <Link href="/login">Secure Your Documents</Link>
               </button>
               <Link href="/how-it-work">
                 <button className="bg-transparent border border-[#4C8BF5] hover:bg-[#4C8BF5] hover:bg-opacity-10 text-white font-semibold py-3 px-6 rounded-lg">

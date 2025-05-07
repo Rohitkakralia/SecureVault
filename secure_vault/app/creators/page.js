@@ -31,7 +31,7 @@ const TeamShowcase = () => {
     },
     {
       "name": "Sahilpreet Singh",
-      "title": "Operations Head",
+      "title": "Operations Head & Co-Founder",
       "image": "/background.jpg",
       "bio": "Sahilpreet ensures smooth project execution, focusing on teamwork and efficiency.",
       "background": "Engineering student with experience in programming, managing tech projects and startups.",

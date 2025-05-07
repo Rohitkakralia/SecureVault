@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Secure Vault
 
-## Getting Started
+A modern, secure file storage and sharing platform built with Next.js. Secure Vault provides a robust solution for storing, managing, and sharing files with advanced security features and a beautiful user interface.
 
-First, run the development server:
+## 🌟 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Secure Authentication**: Built-in user authentication and authorization system
+- **File Management**: Upload, store, and manage your files securely
+- **User Profiles**: Customizable user profiles with unique usernames
+- **Dashboard**: Intuitive dashboard for managing your files and account
+- **Modern UI**: Beautiful and responsive design with 3D effects and animations
+- **Privacy Controls**: Granular control over file sharing and access
+- **Responsive Design**: Works seamlessly across all devices
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15, React 19
+- **Styling**: Tailwind CSS
+- **Database**: MongoDB with Mongoose
+- **Authentication**: NextAuth.js
+- **File Storage**: EdgeStore
+- **Form Handling**: Zod for validation
+- **UI Effects**: Three.js, Vanta, TSParticles
+- **Icons**: Lucide React, React Icons
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (Latest LTS version recommended)
+- MongoDB database
+- EdgeStore account for file storage
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Rohitkakralia/SecureVault.git
+   cd secure-vault
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env.local` file in the root directory and add your environment variables:
+   ```env
+   MONGODB_URI=your_mongodb_connection_string
+   NEXTAUTH_SECRET=your_nextauth_secret
+   NEXTAUTH_URL=http://localhost:3000
+   EDGESTORE_ACCESS_KEY=your_edgestore_access_key
+   EDGESTORE_SECRET_KEY=your_edgestore_secret_key
+   ```
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+## 📁 Project Structure
+
+```
+secure-vault/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── components/        # Reusable components
+│   ├── dashboard/         # Dashboard pages
+│   ├── profile/          # User profile pages
+│   └── ...               # Other app routes
+├── models/                # Database models
+├── public/               # Static assets
+└── ...                   # Configuration files
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔒 Security Features
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Secure file encryption
+- Protected API routes
+- User authentication and authorization
+- Secure file sharing mechanisms
+- Privacy controls for shared content
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🤝 Contributing
 
-## Learn More
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🙏 Acknowledgments
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Next.js team for the amazing framework
+- All contributors who have helped shape this project
+- The open-source community for their invaluable tools and libraries
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+🧑‍💻 Author
+Rohit kakralia
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+LinkedIn:https://www.linkedin.com/in/rohit-kakralia-a35046251/
+
+GitHub:https://github.com/Rohitkakralia

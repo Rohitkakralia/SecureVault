@@ -210,18 +210,18 @@ export default function HowItWorks() {
               Can I share files with people who don't have an account?
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Yes, you can generate secure links to share files with anyone, even if they don't have a Secure Vault account. These links can be set to expire after a certain time or number of downloads.
+              No, you can not share data with people who are not on our platform. This has been done to ensure the highest level of security for our users. We authenticate and verify every user on our platform to ensure only authorised users can access your data. On our platform you are the one with the most control over the data and can grant and revoke access with one click. 
             </p>
           </div>
 
-          <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-6">
+          {/* <div className="bg-gray-50 dark:bg-slate-800 rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               Is my data compliant with regulations like GDPR and HIPAA?
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
               Yes, our service is designed to be compliant with major regulations including GDPR, HIPAA, CCPA, and more. Business and Enterprise plans include additional compliance features and signed BAAs where required.
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
 

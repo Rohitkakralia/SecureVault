@@ -35,7 +35,7 @@ export default function AboutUs() {
       },
       {
         "name": "Sahilpreet Singh",
-        "title": "Operations Head",
+        "title": "Operations Head & Co-Founder",
         "image": "/background.jpg",
         "bio": "Sahilpreet ensures smooth project execution, focusing on teamwork and efficiency.",
         "background": "Engineering student with experience in programming, managing tech projects and startups.",
@@ -126,15 +126,16 @@ export default function AboutUs() {
             </div>
             
             <div className="space-y-4 text-gray-600 dark:text-gray-300">
-              <p>
-              SecureVault was founded in 2022 by a team of Computer Science and Engineering students who saw a critical gap in the healthcare market: the need for truly secure, private, and user-friendly patient data storage solutions that put healthcare providers in control of their sensitive information.              
-              </p>
-              <p>
-              During our university software projects, we discovered healthcare professionals were constantly choosing between usability and security. Existing solutions offered either weak protection with simple interfaces or strong security with complex workflows. Most systems used poor encryption, confusing designs, or centralized key storage—all risking patient data. These flaws inspired us to create something better.
-              </p>
-              <p>
-              We built SecureVault on a simple principle: patient data should remain protected and accessible only to authorized personnel. Our zero-knowledge architecture ensures that only authenticated healthcare providers can access patient information, while our intuitive interface makes security accessible to medical staff of all technical backgrounds, allowing them to focus on what matters most – patient care.         </p>
-            </div>
+            <p>
+SecureVault was developed in 2025 by a team of three Computer Science and Engineering students — Rohit Kakralia, Sahilpreet Singh, and Saksham Sharma — as part of their Minor Project for the 6th semester curriculum. Recognizing the increasing importance of data security in healthcare, the team set out to create a blockchain-based file encryption system specifically designed for the healthcare domain.
+</p>
+<p>
+During our project research and development, we identified that traditional healthcare data storage solutions often lacked either robust security or practical usability. Many existing systems were vulnerable due to weak encryption methods, complex user interfaces, or centralized data storage models, all of which exposed sensitive patient information to potential threats. Motivated to solve these challenges, we envisioned a system that could offer uncompromised security without sacrificing ease of use.
+</p>
+<p>
+We built SecureVault on the principle that healthcare data deserves the highest standard of protection. By leveraging blockchain technology and advanced encryption techniques, our system ensures decentralized, tamper-proof storage where only authorized healthcare professionals can access patient files. Our intuitive platform bridges the gap between cutting-edge security and user-friendly design, empowering healthcare providers to safeguard patient trust while focusing fully on delivering quality care.
+</p>
+ </div>
             
             <div className="mt-8 flex items-center text-blue-600 dark:text-blue-400">
               <Clock className="w-5 h-5 mr-2" />
